@@ -1,0 +1,126 @@
+# =============================================================================
+# SNORT LAB - Laboratoire de test IDS Snort 3
+# =============================================================================
+#
+# ARCHITECTURE (Mermaid):
+# ```mermaid
+# graph TB
+#     subgraph snort_net["snort_net 172.28.0.0/24"]
+#         SNORT["🛡️ snort_ids<br/>172.28.0.10"]
+#         TARGET["🎯 target_snort<br/>172.28.0.100"]
+#         EDITOR["📝 snort_editor<br/>:8081"]
+#         RELOAD["🔄 snort_reloader"]
+#     end
+#     SNORT -->|monitor| TARGET
+#     RELOAD -->|SIGHUP| SNORT
+#     LOCALHOST["🖥️ Attaquant"] -->|nmap/scapy| TARGET
+# ```
+#
+# CHOIX STRATÉGIQUES:
+# - Réseau isolé: Chaque IDS a son propre sous-réseau pour éviter
+#   les interférences et simuler un environnement réaliste
+# - IP fixes: Permet de cibler précisément les machines dans les scans
+# - Reloader automatique: Détecte les modifications de règles et
+#   recharge Snort sans redémarrage (signal SIGHUP)
+#
+# PORTS EXPOSÉS:
+# - 8081: Interface web FileBrowser pour éditer les règles
+#
+# COMMANDES UTILES:
+# - Démarrer: docker compose up -d
+# - Logs Snort: docker logs -f snort_ids
+# - Forcer reload: docker kill -s SIGHUP snort_ids
+# =============================================================================
+
+networks:
+  snort_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24  # Sous-réseau dédié au lab Snort
+
+services:
+  # ---------------------------------------------------------------------------
+  # SNORT IDS ENGINE
+  # ---------------------------------------------------------------------------
+  # Image officielle Cisco Talos Snort 3
+  # Capture le trafic sur eth0 et génère des alertes selon les règles
+  snort-engine:
+    image: ciscotalos/snort3
+    container_name: snort_ids
+    networks:
+      snort_net:
+        ipv4_address: 172.28.0.10  # IP fixe pour identification facile
+    cap_add:
+      - NET_ADMIN  # Nécessaire pour la capture réseau (promiscuous mode)
+      - NET_RAW    # Nécessaire pour les raw sockets
+    volumes:
+      # Monte le répertoire de configuration local
+      # Contient: snort.lua (config) et local.rules (règles personnalisées)
+      - ./config:/etc/snort
+    # Commande Snort:
+    # -c: fichier de configuration
+    # -i eth0: interface à surveiller
+    # -A alert_fast: format d'alerte compact
+    # -l: répertoire de logs
+    command: snort -c /etc/snort/snort.lua -i eth0 -A alert_fast -l /var/log/snort
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # TARGET SERVER (Serveur cible vulnérable)
+  # ---------------------------------------------------------------------------
+  # Serveur multi-services pour tester les détections IDS
+  # Services: HTTP(80), SSH(22), FTP(21), API(8080)
+  target-snort:
+    build:
+      context: ../target-server  # Dockerfile partagé entre tous les labs
+      dockerfile: Dockerfile
+    container_name: target_snort
+    hostname: acme-server  # Hostname réaliste pour les scans
+    networks:
+      snort_net:
+        ipv4_address: 172.28.0.100  # IP cible pour les attaques
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # FILEBROWSER (Éditeur de règles web)
+  # ---------------------------------------------------------------------------
+  # Interface web pour éditer les règles Snort sans SSH
+  # Accès: http://localhost:8081
+  snort-editor:
+    image: filebrowser/filebrowser
+    container_name: snort_editor
+    networks:
+      - snort_net
+    ports:
+      - "8081:80"  # Port exposé sur l'hôte
+    volumes:
+      - ./config:/srv  # Expose le répertoire de config
+    environment:
+      - FB_BASEURL=/
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # AUTO-RELOADER (Rechargement automatique des règles)
+  # ---------------------------------------------------------------------------
+  # Surveille les modifications de fichiers avec inotify
+  # Envoie SIGHUP à Snort pour recharger les règles sans redémarrage
+  #
+  # POURQUOI SIGHUP?
+  # - Snort 3 supporte le rechargement à chaud via SIGHUP
+  # - Évite l'interruption de service pendant les tests
+  # - Permet de modifier les règles en temps réel
+  snort-reloader:
+    image: alpine
+    container_name: snort_reloader
+    networks:
+      - snort_net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Accès à l'API Docker
+      - ./config:/config  # Répertoire surveillé
+    entrypoint: /bin/sh -c "apk add --no-cache docker-cli inotify-tools &&
+      while inotifywait -r -e modify /config; do
+        echo '[RELOAD] Snort rules changed, sending SIGHUP...';
+        docker kill -s SIGHUP snort_ids;
+      done"
+    restart: unless-stopped

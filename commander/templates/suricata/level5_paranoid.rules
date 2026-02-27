@@ -1,0 +1,34 @@
+# SURICATA Level 5 - Paranoid (Maximum Security)
+# Alerts on almost everything - very hard to evade
+
+alert icmp any any -> any any (msg:"[PARANOID] ICMP"; classtype:misc-activity; sid:2005001; rev:1;)
+
+alert tcp any any -> any any (msg:"[PARANOID] TCP SYN"; flags:S; classtype:attempted-recon; sid:2005002; rev:1;)
+
+alert tcp any any -> any any (msg:"[PARANOID] TCP No ACK"; flags:!A; classtype:attempted-recon; sid:2005003; rev:1;)
+
+alert tcp any any -> any any (msg:"[PARANOID] NULL Scan"; flags:0; classtype:attempted-recon; sid:2005004; rev:1;)
+
+alert tcp any any -> any any (msg:"[PARANOID] FIN Scan"; flags:F; classtype:attempted-recon; sid:2005005; rev:1;)
+
+alert tcp any any -> any any (msg:"[PARANOID] XMAS Scan"; flags:FPU; classtype:attempted-recon; sid:2005006; rev:1;)
+
+alert tcp any any -> any any (msg:"[PARANOID] RST Packet"; flags:R; classtype:misc-activity; sid:2005007; rev:1;)
+
+alert ip any any -> any any (msg:"[PARANOID] IP Fragment"; fragbits:M; classtype:attempted-recon; sid:2005008; rev:1;)
+
+alert ip any any -> any any (msg:"[PARANOID] More Fragments"; fragbits:+M; classtype:attempted-recon; sid:2005009; rev:1;)
+
+alert ip any any -> any any (msg:"[PARANOID] Low TTL"; ttl:<5; classtype:attempted-recon; sid:2005010; rev:1;)
+
+alert tcp any any -> any 80 (msg:"[PARANOID] HTTP Port 80"; classtype:web-application-activity; sid:2005011; rev:1;)
+
+alert tcp any any -> any 443 (msg:"[PARANOID] HTTPS Port 443"; classtype:web-application-activity; sid:2005012; rev:1;)
+
+alert tcp any any -> any any (msg:"[PARANOID] New Connection"; flow:stateless; flags:S; threshold:type limit,track by_src,count 1,seconds 1; classtype:attempted-recon; sid:2005013; rev:1;)
+
+alert udp any any -> any any (msg:"[PARANOID] UDP Activity"; classtype:misc-activity; sid:2005014; rev:1;)
+
+alert dns any any -> any any (msg:"[PARANOID] DNS Query"; classtype:misc-activity; sid:2005015; rev:1;)
+
+alert tls any any -> any any (msg:"[PARANOID] TLS Connection"; classtype:misc-activity; sid:2005016; rev:1;)

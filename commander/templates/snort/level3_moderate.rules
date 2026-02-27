@@ -1,0 +1,26 @@
+# SNORT Level 3 - Moderate
+# Balanced detection - good for testing evasion
+
+# ICMP detection
+alert icmp any any -> any any (msg:"ICMP Ping"; itype:8; sid:1003001; rev:1;)
+
+# SYN scan detection
+alert tcp any any -> any any (msg:"SYN Scan Detected"; flags:S; threshold:type both,track by_src,count 20,seconds 60; sid:1003002; rev:1;)
+
+# NULL scan
+alert tcp any any -> any any (msg:"NULL Scan"; flags:0; sid:1003003; rev:1;)
+
+# FIN scan
+alert tcp any any -> any any (msg:"FIN Scan"; flags:F; sid:1003004; rev:1;)
+
+# XMAS scan
+alert tcp any any -> any any (msg:"XMAS Scan"; flags:FPU; sid:1003005; rev:1;)
+
+# ACK scan
+alert tcp any any -> any any (msg:"ACK Scan"; flags:A; threshold:type both,track by_src,count 30,seconds 60; sid:1003006; rev:1;)
+
+# IP fragmentation
+alert ip any any -> any any (msg:"IP Fragmentation"; fragbits:M; sid:1003007; rev:1;)
+
+# HTTP suspicious
+alert tcp any any -> any 80 (msg:"HTTP Request"; content:"GET"; sid:1003008; rev:1;)

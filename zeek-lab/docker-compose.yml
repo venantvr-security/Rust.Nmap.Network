@@ -1,0 +1,142 @@
+# =============================================================================
+# ZEEK LAB - Laboratoire de test Network Security Monitor
+# =============================================================================
+#
+# ARCHITECTURE (Mermaid):
+# ```mermaid
+# graph TB
+#     subgraph zeek_net["zeek_net 172.30.0.0/24"]
+#         ZEEK["👁️ zeek_ids<br/>172.30.0.10"]
+#         TARGET["🎯 target_zeek<br/>172.30.0.100"]
+#         EDITOR["📝 zeek_editor<br/>:8083"]
+#         RELOAD["🔄 zeek_reloader"]
+#         LOGS["📁 ./logs/conn.log, http.log..."]
+#     end
+#     ZEEK -->|monitor| TARGET
+#     ZEEK -->|write| LOGS
+#     RELOAD -->|restart| ZEEK
+#     LOCALHOST["🖥️ Attaquant"] -->|nmap/scapy| TARGET
+# ```
+#
+# ZEEK vs SNORT/SURICATA:
+# - Snort/Suricata: Détection par signatures (règles)
+#   → Génère des alertes si pattern trouvé
+# - Zeek: Analyse comportementale + scripts
+#   → Génère des logs structurés (conn.log, http.log, dns.log...)
+#   → Scripts personnalisés pour détection
+#
+# POURQUOI ZEEK?
+# - Analyse protocolaire profonde (HTTP, DNS, SSL, etc.)
+# - Logs structurés excellents pour le forensic
+# - Langage de scripting puissant pour détections custom
+# - Complémentaire aux IDS classiques
+#
+# CHOIX STRATÉGIQUES:
+# - Scripts dans /site: Permet de personnaliser les détections
+# - Logs persistants: Analyse post-mortem des connexions
+# - Restart au lieu de reload: Zeek ne supporte pas le reload à chaud
+#
+# PORTS EXPOSÉS:
+# - 8083: FileBrowser (édition des scripts)
+#
+# COMMANDES UTILES:
+# - Démarrer: docker compose up -d
+# - Logs Zeek: docker logs -f zeek_ids
+# - Voir connexions: cat ./logs/current/conn.log | zeek-cut id.orig_h id.resp_h
+# =============================================================================
+
+networks:
+  zeek_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24  # Sous-réseau dédié au lab Zeek
+
+services:
+  # ---------------------------------------------------------------------------
+  # ZEEK NETWORK SECURITY MONITOR
+  # ---------------------------------------------------------------------------
+  # Image officielle Zeek (anciennement Bro)
+  # Génère des logs détaillés pour chaque protocole détecté
+  #
+  # LOGS GÉNÉRÉS:
+  # - conn.log: Toutes les connexions TCP/UDP/ICMP
+  # - http.log: Requêtes HTTP (méthode, URI, user-agent)
+  # - dns.log: Requêtes DNS
+  # - ssl.log: Connexions TLS/SSL
+  # - notice.log: Alertes générées par les scripts
+  zeek-engine:
+    image: zeek/zeek:lts
+    container_name: zeek_ids
+    networks:
+      zeek_net:
+        ipv4_address: 172.30.0.10  # IP fixe pour identification
+    cap_add:
+      - NET_ADMIN  # Capture réseau
+      - NET_RAW    # Raw sockets
+    volumes:
+      # Scripts personnalisés (local.zeek chargé automatiquement)
+      - ./scripts:/usr/local/zeek/share/zeek/site
+      # Logs persistants
+      - ./logs:/usr/local/zeek/logs
+    # Commande Zeek:
+    # -i eth0: Interface à surveiller
+    # local: Charge le script local.zeek
+    command: zeek -i eth0 local
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # TARGET SERVER (Serveur cible vulnérable)
+  # ---------------------------------------------------------------------------
+  target-zeek:
+    build:
+      context: ../target-server
+      dockerfile: Dockerfile
+    container_name: target_zeek
+    hostname: acme-server
+    networks:
+      zeek_net:
+        ipv4_address: 172.30.0.100  # IP cible pour les attaques
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # FILEBROWSER (Éditeur de scripts web)
+  # ---------------------------------------------------------------------------
+  # Interface web pour éditer les scripts Zeek
+  # Accès: http://localhost:8083
+  zeek-editor:
+    image: filebrowser/filebrowser
+    container_name: zeek_editor
+    networks:
+      - zeek_net
+    ports:
+      - "8083:80"
+    volumes:
+      - ./scripts:/srv  # Expose le répertoire des scripts
+    environment:
+      - FB_BASEURL=/
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # AUTO-RELOADER (Redémarrage automatique)
+  # ---------------------------------------------------------------------------
+  # Surveille les modifications et redémarre Zeek
+  #
+  # POURQUOI RESTART AU LIEU DE RELOAD?
+  # - Zeek ne supporte pas le rechargement à chaud des scripts
+  # - Un restart est nécessaire pour appliquer les changements
+  # - Le restart est rapide (~2-3 secondes)
+  zeek-reloader:
+    image: alpine
+    container_name: zeek_reloader
+    networks:
+      - zeek_net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./scripts:/scripts  # Répertoire surveillé
+    entrypoint: /bin/sh -c "apk add --no-cache docker-cli inotify-tools &&
+      while inotifywait -r -e modify /scripts; do
+        echo '[RELOAD] Zeek scripts changed, restarting...';
+        docker restart zeek_ids;
+      done"
+    restart: unless-stopped

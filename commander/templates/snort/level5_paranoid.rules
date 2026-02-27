@@ -1,0 +1,43 @@
+# SNORT Level 5 - Paranoid (Maximum Security)
+# Alerts on almost everything - very hard to evade
+
+# All ICMP
+alert icmp any any -> any any (msg:"[PARANOID] ICMP"; sid:1005001; rev:1;)
+
+# Any TCP SYN
+alert tcp any any -> any any (msg:"[PARANOID] TCP SYN"; flags:S; sid:1005002; rev:1;)
+
+# Any TCP with no ACK (unusual)
+alert tcp any any -> any any (msg:"[PARANOID] TCP No ACK"; flags:!A; sid:1005003; rev:1;)
+
+# NULL scan
+alert tcp any any -> any any (msg:"[PARANOID] NULL Scan"; flags:0; sid:1005004; rev:1;)
+
+# FIN only
+alert tcp any any -> any any (msg:"[PARANOID] FIN Scan"; flags:F; sid:1005005; rev:1;)
+
+# XMAS scan
+alert tcp any any -> any any (msg:"[PARANOID] XMAS Scan"; flags:FPU; sid:1005006; rev:1;)
+
+# Any RST
+alert tcp any any -> any any (msg:"[PARANOID] RST"; flags:R; sid:1005007; rev:1;)
+
+# Any fragment
+alert ip any any -> any any (msg:"[PARANOID] IP Fragment"; fragbits:M; sid:1005008; rev:1;)
+alert ip any any -> any any (msg:"[PARANOID] More Fragments"; fragbits:+M; sid:1005009; rev:1;)
+
+# TTL anomaly
+alert ip any any -> any any (msg:"[PARANOID] Low TTL"; ttl:<5; sid:1005010; rev:1;)
+
+# Any HTTP
+alert tcp any any -> any 80 (msg:"[PARANOID] HTTP"; sid:1005011; rev:1;)
+alert tcp any any -> any 443 (msg:"[PARANOID] HTTPS"; sid:1005012; rev:1;)
+
+# Connection attempt to any port
+alert tcp any any -> any any (msg:"[PARANOID] Connection Attempt"; flags:S; threshold:type limit,track by_src,count 1,seconds 1; sid:1005013; rev:1;)
+
+# UDP activity
+alert udp any any -> any any (msg:"[PARANOID] UDP"; sid:1005014; rev:1;)
+
+# Any new connection
+alert tcp any any -> any any (msg:"[PARANOID] New Connection"; flow:stateless; flags:S; sid:1005015; rev:1;)

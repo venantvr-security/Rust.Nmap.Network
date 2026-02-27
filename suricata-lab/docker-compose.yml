@@ -1,0 +1,159 @@
+# =============================================================================
+# SURICATA LAB - Laboratoire de test IDS/IPS Suricata
+# =============================================================================
+#
+# ARCHITECTURE (Mermaid):
+# ```mermaid
+# graph TB
+#     subgraph suricata_net["suricata_net 172.29.0.0/24"]
+#         SURICATA["🦊 suricata_ids<br/>172.29.0.10"]
+#         TARGET["🎯 target_suricata<br/>172.29.0.100"]
+#         EDITOR["📝 suricata_editor<br/>:8082"]
+#         EVEBOX["📊 EveBox<br/>:5636"]
+#         RELOAD["🔄 suricata_reloader"]
+#         LOGS["📁 ./logs/eve.json"]
+#     end
+#     SURICATA -->|monitor| TARGET
+#     SURICATA -->|write| LOGS
+#     LOGS -->|read| EVEBOX
+#     RELOAD -->|USR2| SURICATA
+#     LOCALHOST["🖥️ Attaquant"] -->|nmap/scapy| TARGET
+# ```
+#
+# POURQUOI SURICATA?
+# - Plus moderne que Snort, multi-threadé natif
+# - Support IPS (Intrusion Prevention) en plus de IDS
+# - Format de logs EVE JSON, idéal pour l'analyse
+# - Écosystème riche (EveBox, Kibana, etc.)
+#
+# CHOIX STRATÉGIQUES:
+# - EveBox intégré: Visualisation des alertes en temps réel
+# - Logs persistants: Permet l'analyse post-mortem
+# - Rechargement USR2: Signal spécifique à Suricata pour reload
+#
+# PORTS EXPOSÉS:
+# - 5636: EveBox (dashboard de visualisation des alertes)
+# - 8082: FileBrowser (édition des règles)
+#
+# COMMANDES UTILES:
+# - Démarrer: docker compose up -d
+# - Logs Suricata: docker logs -f suricata_ids
+# - Forcer reload: docker kill -s USR2 suricata_ids
+# - Voir alertes: tail -f ./logs/eve.json | jq '.alert'
+# =============================================================================
+
+networks:
+  suricata_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/24  # Sous-réseau dédié au lab Suricata
+
+services:
+  # ---------------------------------------------------------------------------
+  # SURICATA IDS/IPS ENGINE
+  # ---------------------------------------------------------------------------
+  # Image officielle OISF (Open Information Security Foundation)
+  # Suricata est plus performant que Snort grâce au multi-threading
+  suricata:
+    image: jasonish/suricata:latest
+    container_name: suricata_ids
+    networks:
+      suricata_net:
+        ipv4_address: 172.29.0.10  # IP fixe pour identification
+    cap_add:
+      - NET_ADMIN  # Capture réseau (mode promiscuous)
+      - NET_RAW    # Raw sockets pour inspection paquets
+      - SYS_NICE   # Permet d'ajuster la priorité des threads
+    volumes:
+      # Règles personnalisées (local.rules)
+      - ./rules:/var/lib/suricata/rules
+      # Logs persistants (eve.json pour EveBox)
+      - ./logs:/var/log/suricata
+    command: -i eth0  # Interface à surveiller
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # TARGET SERVER (Serveur cible vulnérable)
+  # ---------------------------------------------------------------------------
+  # Même serveur multi-services que les autres labs
+  # Permet de comparer les détections entre IDS
+  target-suricata:
+    build:
+      context: ../target-server
+      dockerfile: Dockerfile
+    container_name: target_suricata
+    hostname: acme-server
+    networks:
+      suricata_net:
+        ipv4_address: 172.29.0.100  # IP cible pour les attaques
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # FILEBROWSER (Éditeur de règles web)
+  # ---------------------------------------------------------------------------
+  # Interface web pour éditer les règles Suricata
+  # Accès: http://localhost:8082
+  suricata-editor:
+    image: filebrowser/filebrowser
+    container_name: suricata_editor
+    networks:
+      - suricata_net
+    ports:
+      - "8082:80"
+    volumes:
+      - ./rules:/srv  # Expose le répertoire des règles
+    environment:
+      - FB_BASEURL=/
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # EVEBOX (Visualisation des alertes)
+  # ---------------------------------------------------------------------------
+  # Dashboard web pour analyser les alertes Suricata
+  # Lit directement les fichiers eve.json générés par Suricata
+  #
+  # POURQUOI EVEBOX?
+  # - Interface intuitive pour l'analyse des alertes
+  # - Pas besoin d'Elasticsearch (mode embedded)
+  # - Parfait pour un environnement de test/apprentissage
+  # - Accès: http://localhost:5636
+  visualizer:
+    image: jasonish/evebox:latest
+    container_name: suricata_evebox
+    networks:
+      - suricata_net
+    ports:
+      - "5636:5636"  # Port par défaut d'EveBox
+    volumes:
+      # Monte les logs en lecture seule
+      - ./logs:/var/log/suricata:ro
+    # Mode serveur avec lecture directe des logs
+    command: evebox server -D /var/log/suricata
+    depends_on:
+      - suricata  # Attend que Suricata soit démarré
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # AUTO-RELOADER (Rechargement automatique des règles)
+  # ---------------------------------------------------------------------------
+  # Surveille les modifications et recharge Suricata
+  #
+  # POURQUOI USR2?
+  # - Signal spécifique à Suricata pour le rechargement des règles
+  # - Ne coupe pas les connexions en cours
+  # - Plus rapide qu'un redémarrage complet
+  suricata-reloader:
+    image: alpine
+    container_name: suricata_reloader
+    networks:
+      - suricata_net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./rules:/rules  # Répertoire surveillé
+    entrypoint: /bin/sh -c "apk add --no-cache docker-cli inotify-tools &&
+      while inotifywait -r -e modify /rules; do
+        echo '[RELOAD] Suricata rules changed, sending USR2...';
+        docker kill -s USR2 suricata_ids;
+      done"
+    restart: unless-stopped

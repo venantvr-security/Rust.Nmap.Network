@@ -1,0 +1,28 @@
+# SURICATA Level 4 - Strict
+# High sensitivity - detects most techniques
+
+alert icmp any any -> any any (msg:"ICMP Activity"; classtype:misc-activity; sid:2004001; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN SYN Scan"; flags:S; threshold:type both,track by_src,count 5,seconds 60; classtype:attempted-recon; sid:2004002; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN NULL Scan"; flags:0; classtype:attempted-recon; sid:2004003; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN FIN Scan"; flags:F; classtype:attempted-recon; sid:2004004; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN XMAS Scan"; flags:FPU; classtype:attempted-recon; sid:2004005; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN ACK Scan"; flags:A; flow:stateless; threshold:type both,track by_src,count 10,seconds 60; classtype:attempted-recon; sid:2004006; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN Window Scan"; flags:A; window:0; classtype:attempted-recon; sid:2004007; rev:1;)
+
+alert ip any any -> any any (msg:"IP Fragmentation"; fragbits:M; classtype:attempted-recon; sid:2004008; rev:1;)
+
+alert ip any any -> any any (msg:"Small Fragment Evasion"; dsize:<25; fragbits:M; classtype:attempted-recon; sid:2004009; rev:1;)
+
+alert http any any -> any any (msg:"HTTP GET Request"; http.method; content:"GET"; classtype:web-application-activity; sid:2004010; rev:1;)
+
+alert http any any -> any any (msg:"HTTP POST Request"; http.method; content:"POST"; classtype:web-application-activity; sid:2004011; rev:1;)
+
+alert tcp any any -> any any (msg:"Possible Decoy Scan"; flags:S; threshold:type both,track by_dst,count 50,seconds 10; classtype:attempted-recon; sid:2004012; rev:1;)
+
+alert tcp any any -> any any (msg:"Slow Scan Detected"; flags:S; threshold:type threshold,track by_src,count 3,seconds 300; classtype:attempted-recon; sid:2004013; rev:1;)

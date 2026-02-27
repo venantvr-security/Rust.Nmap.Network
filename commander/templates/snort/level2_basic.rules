@@ -1,0 +1,14 @@
+# SNORT Level 2 - Basic
+# Detects common scans and obvious attacks
+
+# ICMP flood
+alert icmp any any -> any any (msg:"ICMP Flood"; threshold:type both,track by_src,count 50,seconds 1; sid:1002001; rev:1;)
+
+# Basic SYN scan (high threshold)
+alert tcp any any -> any any (msg:"Possible SYN Scan"; flags:S; threshold:type both,track by_src,count 50,seconds 60; sid:1002002; rev:1;)
+
+# NULL scan
+alert tcp any any -> any any (msg:"NULL Scan"; flags:0; sid:1002003; rev:1;)
+
+# XMAS scan
+alert tcp any any -> any any (msg:"XMAS Scan"; flags:FPU; sid:1002004; rev:1;)

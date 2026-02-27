@@ -1,0 +1,5 @@
+# SNORT Level 1 - Minimal (Most Permeable)
+# Only detects the most obvious attacks
+
+# Basic ICMP flood
+alert icmp any any -> any any (msg:"ICMP Flood"; threshold:type both,track by_src,count 100,seconds 1; sid:1001001; rev:1;)

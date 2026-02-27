@@ -1,0 +1,7 @@
+# robots.txt for ACME Corp
+User-agent: *
+Disallow: /admin
+Disallow: /backup
+Disallow: /api/internal
+Disallow: /config
+Disallow: /.git

@@ -1,0 +1,4 @@
+# SURICATA Level 1 - Minimal (Most Permeable)
+# Only detects the most obvious attacks
+
+alert icmp any any -> any any (msg:"ICMP Flood"; threshold:type both,track by_src,count 100,seconds 1; classtype:misc-activity; sid:2001001; rev:1;)

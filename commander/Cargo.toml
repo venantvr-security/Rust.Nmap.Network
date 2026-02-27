@@ -1,0 +1,87 @@
+# =============================================================================
+# IDS LAB COMMANDER - Configuration Cargo
+# =============================================================================
+#
+# APPLICATION:
+# Dashboard web pour piloter les laboratoires IDS (Snort, Suricata, Zeek).
+# Permet de démarrer/arrêter les containers, changer les niveaux de sécurité,
+# et fournit un cookbook d'attaques pour les tests d'évasion.
+#
+# ARCHITECTURE:
+# ┌─────────────────────────────────────────────────────────────────┐
+# │                    IDS Lab Commander                            │
+# │                     (Rust + Axum)                               │
+# ├─────────────────────────────────────────────────────────────────┤
+# │  Routes HTTP:                                                   │
+# │  /              → Dashboard principal (HTML)                    │
+# │  /setup         → Guide d'installation                          │
+# │  /start/{id}    → Démarrer un container                        │
+# │  /stop/{id}     → Arrêter un container                         │
+# │  /apply/{i}/{l} → Appliquer un template de règles              │
+# │  /lab/start/{l} → Démarrer un lab complet                      │
+# │  /lab/stop/{l}  → Arrêter un lab complet                       │
+# ├─────────────────────────────────────────────────────────────────┤
+# │  Connexion Docker via socket Unix (/var/run/docker.sock)       │
+# └─────────────────────────────────────────────────────────────────┘
+#
+# LANCEMENT:
+# cd commander && cargo run
+# → Serveur sur http://localhost:3000
+#
+# =============================================================================
+
+[package]
+name = "ids-commander"
+version = "0.1.0"
+edition = "2021"
+description = "IDS Lab Commander - Dashboard web pour piloter les laboratoires IDS"
+
+# =============================================================================
+# DÉPENDANCES
+# =============================================================================
+#
+# CHOIX STRATÉGIQUES:
+#
+# AXUM (framework web):
+# - Moderne, basé sur Tokio et Tower
+# - Performant et ergonomique
+# - Excellente intégration avec l'écosystème async Rust
+#
+# BOLLARD (client Docker):
+# - Client Docker natif en Rust
+# - Support complet de l'API Docker
+# - Async/await natif
+#
+# TOWER-HTTP:
+# - Middleware pour servir des fichiers statiques (CSS, JS)
+# - Support CORS pour le développement
+#
+# HTMX (côté frontend):
+# - Permet les interactions AJAX sans JavaScript complexe
+# - Les boutons appellent directement les routes Axum
+# - Le serveur renvoie du HTML qui remplace le contenu
+#
+# =============================================================================
+
+[dependencies]
+# Framework web async moderne
+# https://github.com/tokio-rs/axum
+axum = "0.7"
+
+# Client Docker en Rust (start/stop/restart containers)
+# https://github.com/fussybeaver/bollard
+bollard = "0.18"
+
+# Runtime async (nécessaire pour Axum et Bollard)
+# Features "full" inclut tous les modules (time, fs, net, etc.)
+tokio = { version = "1", features = ["full"] }
+
+# Sérialisation JSON (pour les réponses API)
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Middleware HTTP (fichiers statiques + CORS)
+tower-http = { version = "0.6", features = ["cors", "fs"] }
+
+# Utilitaires pour les streams async (logs Docker)
+futures-util = "0.3"

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACME Corp - Internal Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 { color: #1e3c72; margin-bottom: 1rem; }
+        .logo { font-size: 4rem; margin-bottom: 1rem; }
+        p { color: #666; margin-bottom: 1.5rem; line-height: 1.6; }
+        .services {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        .service {
+            background: #f0f4f8;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .service strong { color: #1e3c72; }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #856404;
+        }
+        footer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏢</div>
+        <h1>ACME Corporation</h1>
+        <p>Welcome to the internal portal. This server hosts critical business applications.</p>
+
+        <div class="services">
+            <div class="service">
+                <strong>HTTP</strong><br>Port 80
+            </div>
+            <div class="service">
+                <strong>SSH</strong><br>Port 22
+            </div>
+            <div class="service">
+                <strong>FTP</strong><br>Port 21
+            </div>
+            <div class="service">
+                <strong>API</strong><br>Port 8080
+            </div>
+        </div>
+
+        <div class="warning">
+            ⚠️ Authorized personnel only. All access is monitored and logged.
+        </div>
+
+        <footer>
+            Server: nginx/1.24.0 | Internal Use Only<br>
+            © 2024 ACME Corporation - IDS Lab Target
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# SURICATA Level 3 - Moderate
+# Balanced detection - good for testing evasion
+
+alert icmp any any -> any any (msg:"ICMP Echo Request"; itype:8; classtype:misc-activity; sid:2003001; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN NMAP SYN Scan"; flags:S; threshold:type both,track by_src,count 20,seconds 60; classtype:attempted-recon; sid:2003002; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN NULL Scan"; flags:0; classtype:attempted-recon; sid:2003003; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN FIN Scan"; flags:F; classtype:attempted-recon; sid:2003004; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN XMAS Scan"; flags:FPU; classtype:attempted-recon; sid:2003005; rev:1;)
+
+alert tcp any any -> any any (msg:"ET SCAN ACK Scan"; flags:A; flow:stateless; threshold:type both,track by_src,count 30,seconds 60; classtype:attempted-recon; sid:2003006; rev:1;)
+
+alert ip any any -> any any (msg:"IP Fragmentation Detected"; fragbits:M; classtype:attempted-recon; sid:2003007; rev:1;)
+
+alert http any any -> any any (msg:"HTTP Request"; flow:to_server,established; classtype:web-application-activity; sid:2003008; rev:1;)

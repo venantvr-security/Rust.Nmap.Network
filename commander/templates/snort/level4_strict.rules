@@ -1,0 +1,36 @@
+# SNORT Level 4 - Strict
+# High sensitivity - detects most techniques
+
+# ICMP all
+alert icmp any any -> any any (msg:"ICMP Activity"; sid:1004001; rev:1;)
+
+# SYN scan (low threshold)
+alert tcp any any -> any any (msg:"SYN Scan"; flags:S; threshold:type both,track by_src,count 5,seconds 60; sid:1004002; rev:1;)
+
+# NULL scan
+alert tcp any any -> any any (msg:"NULL Scan"; flags:0; sid:1004003; rev:1;)
+
+# FIN scan
+alert tcp any any -> any any (msg:"FIN Scan"; flags:F; sid:1004004; rev:1;)
+
+# XMAS scan
+alert tcp any any -> any any (msg:"XMAS Scan"; flags:FPU; sid:1004005; rev:1;)
+
+# ACK scan
+alert tcp any any -> any any (msg:"ACK Scan"; flags:A; threshold:type both,track by_src,count 10,seconds 60; sid:1004006; rev:1;)
+
+# Window scan
+alert tcp any any -> any any (msg:"Window Scan"; flags:A; window:0; sid:1004007; rev:1;)
+
+# IP fragmentation
+alert ip any any -> any any (msg:"IP Fragmentation"; fragbits:M; sid:1004008; rev:1;)
+
+# Small fragments (evasion attempt)
+alert ip any any -> any any (msg:"Small Fragment Evasion"; dsize:<25; fragbits:M; sid:1004009; rev:1;)
+
+# HTTP all requests
+alert tcp any any -> any 80 (msg:"HTTP Request"; content:"GET"; sid:1004010; rev:1;)
+alert tcp any any -> any 80 (msg:"HTTP POST"; content:"POST"; sid:1004011; rev:1;)
+
+# Decoy detection (multiple source)
+alert tcp any any -> any any (msg:"Possible Decoy Scan"; flags:S; threshold:type both,track by_dst,count 50,seconds 10; sid:1004012; rev:1;)
