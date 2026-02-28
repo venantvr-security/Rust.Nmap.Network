@@ -6,17 +6,21 @@
 # ```mermaid
 # graph TB
 #     subgraph zeek_net["zeek_net 172.30.0.0/24"]
-#         ZEEK["👁️ zeek_ids<br/>172.30.0.10"]
-#         TARGET["🎯 target_zeek<br/>172.30.0.100"]
+#         subgraph SHARED["Namespace réseau partagé"]
+#             TARGET["🎯 target_zeek<br/>172.30.0.100"]
+#             ZEEK["👁️ zeek_ids<br/>(network_mode: service:target)"]
+#         end
 #         EDITOR["📝 zeek_editor<br/>:8083"]
 #         RELOAD["🔄 zeek_reloader"]
 #         LOGS["📁 ./logs/conn.log, http.log..."]
 #     end
-#     ZEEK -->|monitor| TARGET
+#     ZEEK -->|sniff eth0| TARGET
 #     ZEEK -->|write| LOGS
 #     RELOAD -->|restart| ZEEK
 #     LOCALHOST["🖥️ Attaquant"] -->|nmap/scapy| TARGET
 # ```
+#
+# NOTE: Zeek partage le namespace réseau du target pour voir tout le trafic
 #
 # ZEEK vs SNORT/SURICATA:
 # - Snort/Suricata: Détection par signatures (règles)
@@ -59,6 +63,9 @@ services:
   # Image officielle Zeek (anciennement Bro)
   # Génère des logs détaillés pour chaque protocole détecté
   #
+  # NETWORK_MODE: service:target-zeek
+  # Partage le namespace réseau du target pour voir TOUT le trafic
+  #
   # LOGS GÉNÉRÉS:
   # - conn.log: Toutes les connexions TCP/UDP/ICMP
   # - http.log: Requêtes HTTP (méthode, URI, user-agent)
@@ -68,9 +75,9 @@ services:
   zeek-engine:
     image: zeek/zeek:lts
     container_name: zeek_ids
-    networks:
-      zeek_net:
-        ipv4_address: 172.30.0.10  # IP fixe pour identification
+    network_mode: "service:target-zeek"  # Partage le namespace réseau
+    depends_on:
+      - target-zeek  # Le target doit démarrer en premier
     cap_add:
       - NET_ADMIN  # Capture réseau
       - NET_RAW    # Raw sockets
@@ -79,10 +86,13 @@ services:
       - ./scripts:/usr/local/zeek/share/zeek/site
       # Logs persistants
       - ./logs:/usr/local/zeek/logs
+    # Répertoire de travail pour que les logs soient écrits dans le volume
+    working_dir: /usr/local/zeek/logs
     # Commande Zeek:
-    # -i eth0: Interface à surveiller
+    # -C: Ignore les checksums invalides (courant dans Docker)
+    # -i eth0: Interface à surveiller (celle du target)
     # local: Charge le script local.zeek
-    command: zeek -i eth0 local
+    command: zeek -C -i eth0 local
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------

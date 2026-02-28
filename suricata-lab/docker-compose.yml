@@ -6,19 +6,23 @@
 # ```mermaid
 # graph TB
 #     subgraph suricata_net["suricata_net 172.29.0.0/24"]
-#         SURICATA["🦊 suricata_ids<br/>172.29.0.10"]
-#         TARGET["🎯 target_suricata<br/>172.29.0.100"]
+#         subgraph SHARED["Namespace réseau partagé"]
+#             TARGET["🎯 target_suricata<br/>172.29.0.100"]
+#             SURICATA["🦊 suricata_ids<br/>(network_mode: service:target)"]
+#         end
 #         EDITOR["📝 suricata_editor<br/>:8082"]
 #         EVEBOX["📊 EveBox<br/>:5636"]
 #         RELOAD["🔄 suricata_reloader"]
 #         LOGS["📁 ./logs/eve.json"]
 #     end
-#     SURICATA -->|monitor| TARGET
+#     SURICATA -->|sniff eth0| TARGET
 #     SURICATA -->|write| LOGS
 #     LOGS -->|read| EVEBOX
 #     RELOAD -->|USR2| SURICATA
 #     LOCALHOST["🖥️ Attaquant"] -->|nmap/scapy| TARGET
 # ```
+#
+# NOTE: Suricata partage le namespace réseau du target pour voir tout le trafic
 #
 # POURQUOI SURICATA?
 # - Plus moderne que Snort, multi-threadé natif
@@ -55,22 +59,26 @@ services:
   # ---------------------------------------------------------------------------
   # Image officielle OISF (Open Information Security Foundation)
   # Suricata est plus performant que Snort grâce au multi-threading
+  #
+  # NETWORK_MODE: service:target-suricata
+  # Partage le namespace réseau du target pour voir TOUT le trafic
+  # entrant/sortant sur l'interface eth0 du serveur cible
   suricata:
     image: jasonish/suricata:latest
     container_name: suricata_ids
-    networks:
-      suricata_net:
-        ipv4_address: 172.29.0.10  # IP fixe pour identification
+    network_mode: "service:target-suricata"  # Partage le namespace réseau
+    depends_on:
+      - target-suricata  # Le target doit démarrer en premier
     cap_add:
       - NET_ADMIN  # Capture réseau (mode promiscuous)
       - NET_RAW    # Raw sockets pour inspection paquets
       - SYS_NICE   # Permet d'ajuster la priorité des threads
     volumes:
-      # Règles personnalisées (local.rules)
+      # Règles personnalisées
       - ./rules:/var/lib/suricata/rules
       # Logs persistants (eve.json pour EveBox)
       - ./logs:/var/log/suricata
-    command: -i eth0  # Interface à surveiller
+    command: -i eth0  # Interface à surveiller (celle du target)
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------
@@ -126,8 +134,8 @@ services:
     ports:
       - "5636:5636"  # Port par défaut d'EveBox
     volumes:
-      # Monte les logs en lecture seule
-      - ./logs:/var/log/suricata:ro
+      # Monte les logs (EveBox a besoin d'écrire config.sqlite)
+      - ./logs:/var/log/suricata
     # Mode serveur avec lecture directe des logs
     command: evebox server -D /var/log/suricata
     depends_on:

@@ -6,15 +6,19 @@
 # ```mermaid
 # graph TB
 #     subgraph snort_net["snort_net 172.28.0.0/24"]
-#         SNORT["🛡️ snort_ids<br/>172.28.0.10"]
-#         TARGET["🎯 target_snort<br/>172.28.0.100"]
+#         subgraph SHARED["Namespace réseau partagé"]
+#             TARGET["🎯 target_snort<br/>172.28.0.100"]
+#             SNORT["🛡️ snort_ids<br/>(network_mode: service:target)"]
+#         end
 #         EDITOR["📝 snort_editor<br/>:8081"]
 #         RELOAD["🔄 snort_reloader"]
 #     end
-#     SNORT -->|monitor| TARGET
+#     SNORT -->|sniff eth0| TARGET
 #     RELOAD -->|SIGHUP| SNORT
 #     LOCALHOST["🖥️ Attaquant"] -->|nmap/scapy| TARGET
 # ```
+#
+# NOTE: Snort partage le namespace réseau du target pour voir tout le trafic
 #
 # CHOIX STRATÉGIQUES:
 # - Réseau isolé: Chaque IDS a son propre sous-réseau pour éviter
@@ -45,12 +49,16 @@ services:
   # ---------------------------------------------------------------------------
   # Image officielle Cisco Talos Snort 3
   # Capture le trafic sur eth0 et génère des alertes selon les règles
+  #
+  # NETWORK_MODE: service:target-snort
+  # Partage le namespace réseau du target pour voir TOUT le trafic
   snort-engine:
     image: ciscotalos/snort3
     container_name: snort_ids
-    networks:
-      snort_net:
-        ipv4_address: 172.28.0.10  # IP fixe pour identification facile
+    network_mode: "service:target-snort"  # Partage le namespace réseau
+    depends_on:
+      - target-snort  # Le target doit démarrer en premier
+    user: root  # Nécessaire pour la capture réseau avec afpacket DAQ
     cap_add:
       - NET_ADMIN  # Nécessaire pour la capture réseau (promiscuous mode)
       - NET_RAW    # Nécessaire pour les raw sockets
@@ -58,12 +66,17 @@ services:
       # Monte le répertoire de configuration local
       # Contient: snort.lua (config) et local.rules (règles personnalisées)
       - ./config:/etc/snort
+      # Logs persistants
+      - ./logs:/var/log/snort
     # Commande Snort:
     # -c: fichier de configuration
-    # -i eth0: interface à surveiller
+    # -i eth0: interface à surveiller (celle du target)
     # -A alert_fast: format d'alerte compact
     # -l: répertoire de logs
-    command: snort -c /etc/snort/snort.lua -i eth0 -A alert_fast -l /var/log/snort
+    # Note: Le binaire Snort est installé dans /home/snorty/snort3/bin/
+    # On override l'entrypoint car le default lance bash et exit immédiatement
+    entrypoint: ""
+    command: ["/home/snorty/snort3/bin/snort", "-c", "/etc/snort/snort.lua", "-i", "eth0", "-A", "alert_fast", "-l", "/var/log/snort"]
     restart: unless-stopped
 
   # ---------------------------------------------------------------------------
