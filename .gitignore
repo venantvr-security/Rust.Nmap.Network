@@ -6,6 +6,8 @@ Cargo.lock
 # Logs
 *.log
 suricata-lab/logs/
+snort-lab/logs/
+zeek-lab/logs/
 *.json
 
 # Docker
