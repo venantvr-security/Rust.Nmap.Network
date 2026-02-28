@@ -1,0 +1,38 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	dns
+#open	2026-02-28-11-22-12
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	trans_id	rtt	query	qclass	qclass_name	qtype	qtype_name	rcode	rcode_name	AA	TC	RD	RA	Z	answers	TTLs	rejected
+#types	time	string	addr	port	addr	port	enum	count	interval	string	count	string	count	string	count	string	bool	bool	bool	bool	count	vector[string]	vector[interval]	bool
+1772277732.386879	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	TXT 0 ,172.30.0.1,rvv-ge62vr-7rf.local,rvv-ge62vr-7rf.local	4500.000000,120.000000,120.000000,120.000000	F
+1772277732.838884	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	rvv-ge62vr-7rf.local	1	C_INTERNET	255	*	0	NOERROR	T	F	F	F	0	_https._tcp.local,recipe.concilio.com._https._tcp.local	4500.000000,4500.000000	F
+1772277733.168849	CxwRBe3KDfcoS56oXj	fe80::85c:bcff:fe94:2af3	5353	ff02::fb	5353	udp	0	0.103401	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	_https._tcp.local,recipe.concilio.com._https._tcp.local	4500.000000,4500.000000	F
+1772277733.251499	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	rvv-ge62vr-7rf.local	1	C_INTERNET	255	*	0	NOERROR	T	F	F	F	0	172.30.0.1	120.000000	F
+1772277733.518031	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	rvv-ge62vr-7rf.local	1	C_INTERNET	255	*	0	NOERROR	T	F	F	F	0	TXT 0 ,rvv-ge62vr-7rf.local,rvv-ge62vr-7rf.local	4500.000000,120.000000,120.000000	F
+1772277733.250979	CxwRBe3KDfcoS56oXj	fe80::85c:bcff:fe94:2af3	5353	ff02::fb	5353	udp	0	0.701543	3.f.a.2.4.9.e.f.f.f.c.b.c.5.8.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f.ip6.arpa	1	C_INTERNET	255	*	0	NOERROR	T	F	F	F	0	TXT 0 ,fe80::85c:bcff:fe94:2af3,rvv-ge62vr-7rf.local,rvv-ge62vr-7rf.local	4500.000000,120.000000,120.000000,120.000000	F
+1772277733.900939	C1r07DGksPUz7B3cc	fe80::e049:e0ff:fe0d:b076	5353	ff02::fb	5353	udp	0	0.104649	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	_https._tcp.local,recipe.concilio.com._https._tcp.local	4500.000000,4500.000000	F
+1772277733.501033	CxwRBe3KDfcoS56oXj	fe80::85c:bcff:fe94:2af3	5353	ff02::fb	5353	udp	0	0.903722	3.f.a.2.4.9.e.f.f.f.c.b.c.5.8.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f.ip6.arpa	1	C_INTERNET	255	*	0	NOERROR	T	F	F	F	0	_https._tcp.local,recipe.concilio.com._https._tcp.local	4500.000000,4500.000000	F
+1772277733.752552	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	172.30.0.1	120.000000	F
+1772277733.983354	C1r07DGksPUz7B3cc	fe80::e049:e0ff:fe0d:b076	5353	ff02::fb	5353	udp	0	0.701218	6.7.0.b.d.0.e.f.f.f.0.e.9.4.0.e.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f.ip6.arpa	1	C_INTERNET	255	*	0	NOERROR	T	F	F	F	0	TXT 0 ,fe80::e049:e0ff:fe0d:b076,rvv-ge62vr-7rf.local,rvv-ge62vr-7rf.local	4500.000000,120.000000,120.000000,120.000000	F
+1772277733.752033	CxwRBe3KDfcoS56oXj	fe80::85c:bcff:fe94:2af3	5353	ff02::fb	5353	udp	0	1.331374	3.f.a.2.4.9.e.f.f.f.c.b.c.5.8.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f.ip6.arpa	1	C_INTERNET	255	*	0	NOERROR	T	F	F	F	0	TXT 0 ,fe80::85c:bcff:fe94:2af3,rvv-ge62vr-7rf.local,rvv-ge62vr-7rf.local	4500.000000,120.000000,120.000000,120.000000	F
+1772277734.233673	C1r07DGksPUz7B3cc	fe80::e049:e0ff:fe0d:b076	5353	ff02::fb	5353	udp	0	0.902768	6.7.0.b.d.0.e.f.f.f.0.e.9.4.0.e.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f.ip6.arpa	1	C_INTERNET	255	*	0	NOERROR	T	F	F	F	0	_https._tcp.local,recipe.concilio.com._https._tcp.local	4500.000000,4500.000000	F
+1772277734.484301	C1r07DGksPUz7B3cc	fe80::e049:e0ff:fe0d:b076	5353	ff02::fb	5353	udp	0	1.331885	6.7.0.b.d.0.e.f.f.f.0.e.9.4.0.e.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f.ip6.arpa	1	C_INTERNET	255	*	0	NOERROR	T	F	F	F	0	TXT 0 ,fe80::e049:e0ff:fe0d:b076,rvv-ge62vr-7rf.local,rvv-ge62vr-7rf.local	4500.000000,120.000000,120.000000,120.000000	F
+1772277734.169373	CxwRBe3KDfcoS56oXj	fe80::85c:bcff:fe94:2af3	5353	ff02::fb	5353	udp	0	2.366512	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	_https._tcp.local,recipe.concilio.com._https._tcp.local,TXT 0 ,rvv-ge62vr-7rf.local,fe80::85c:bcff:fe94:2af3	4500.000000,4500.000000,4500.000000,120.000000,120.000000	F
+1772277736.171407	CxwRBe3KDfcoS56oXj	fe80::85c:bcff:fe94:2af3	5353	ff02::fb	5353	udp	0	1.042879	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	TXT 0 ,fe80::85c:bcff:fe94:2af3,rvv-ge62vr-7rf.local,rvv-ge62vr-7rf.local	4500.000000,120.000000,120.000000,120.000000	F
+1772277734.901937	C1r07DGksPUz7B3cc	fe80::e049:e0ff:fe0d:b076	5353	ff02::fb	5353	udp	0	2.365881	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	_https._tcp.local,recipe.concilio.com._https._tcp.local,TXT 0 ,rvv-ge62vr-7rf.local,fe80::e049:e0ff:fe0d:b076	4500.000000,4500.000000,4500.000000,120.000000,120.000000	F
+1772277736.902960	C1r07DGksPUz7B3cc	fe80::e049:e0ff:fe0d:b076	5353	ff02::fb	5353	udp	0	1.044307	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	TXT 0 ,fe80::e049:e0ff:fe0d:b076,rvv-ge62vr-7rf.local,rvv-ge62vr-7rf.local	4500.000000,120.000000,120.000000,120.000000	F
+1772277733.952688	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	rvv-ge62vr-7rf.local,fe80::85c:bcff:fe94:2af3	120.000000,120.000000	F
+1772277734.969823	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	0	NOERROR	T	F	F	F	0	_https._tcp.local,recipe.concilio.com._https._tcp.local,TXT 0 ,rvv-ge62vr-7rf.local,fe80::85c:bcff:fe94:2af3,172.30.0.1	4500.000000,4500.000000,4500.000000,120.000000,120.000000,120.000000	F
+1772277735.083560	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	3.f.a.2.4.9.e.f.f.f.c.b.c.5.8.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f.ip6.arpa	-	-	-	-	0	NOERROR	T	F	F	F	0	rvv-ge62vr-7rf.local	120.000000	F
+1772277735.649724	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	recipe.concilio.com._https._tcp.local	-	-	-	-	0	NOERROR	T	F	F	F	0	TXT 0 ,172.30.0.1,rvv-ge62vr-7rf.local,rvv-ge62vr-7rf.local,fe80::85c:bcff:fe94:2af3	4500.000000,120.000000,120.000000,120.000000,120.000000	F
+1772277737.214355	CvMD3x4RDabLVFhvrl	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	3.f.a.2.4.9.e.f.f.f.c.b.c.5.8.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.e.f.ip6.arpa	-	-	-	-	0	NOERROR	T	F	F	F	0	rvv-ge62vr-7rf.local,fe80::85c:bcff:fe94:2af3	120.000000,120.000000	F
+1772277740.171410	CxwRBe3KDfcoS56oXj	fe80::85c:bcff:fe94:2af3	5353	ff02::fb	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	-	-	F	F	F	F	0	-	-	F
+1772277748.172001	CxwRBe3KDfcoS56oXj	fe80::85c:bcff:fe94:2af3	5353	ff02::fb	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	-	-	F	F	F	F	0	-	-	F
+1772277740.903511	C1r07DGksPUz7B3cc	fe80::e049:e0ff:fe0d:b076	5353	ff02::fb	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	-	-	F	F	F	F	0	-	-	F
+1772277748.903470	C1r07DGksPUz7B3cc	fe80::e049:e0ff:fe0d:b076	5353	ff02::fb	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	-	-	F	F	F	F	0	-	-	F
+1772277762.611390	CEUEkO3NNNUCjYFCt7	172.30.0.1	5353	224.0.0.251	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	-	-	F	F	F	F	0	-	-	F
+1772277764.172719	Cx9btT1RB0A1cS13Z9	fe80::85c:bcff:fe94:2af3	5353	ff02::fb	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	-	-	F	F	F	F	0	-	-	F
+1772277764.904725	CeLRAo0dLuXd2O606	fe80::e049:e0ff:fe0d:b076	5353	ff02::fb	5353	udp	0	-	_afpovertcp._tcp.local	1	C_INTERNET	12	PTR	-	-	F	F	F	F	0	-	-	F
+#close	2026-02-28-11-22-47

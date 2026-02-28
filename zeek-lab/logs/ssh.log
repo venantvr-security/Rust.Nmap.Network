@@ -1,0 +1,19 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	ssh
+#open	2026-02-28-11-22-34
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	version	auth_success	auth_attempts	direction	client	server	cipher_alg	mac_alg	compression_alg	kex_alg	host_key_alg	host_key
+#types	time	string	addr	port	addr	port	count	bool	count	enum	string	string	string	string	string	string	string	string
+1772277749.364633	CfU56Z1IkDtQ2Sam9a	172.30.0.1	38952	172.30.0.100	22	-	-	0	-	-	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	-	-	-	-	-	-
+1772277757.869950	CdxZF034W4Vcxx0tU1	172.30.0.1	55234	172.30.0.100	22	-	-	0	-	-	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	-	-	-	-	-	-
+1772277763.984999	CryIdv4OMW72kDuUfl	172.30.0.1	44288	172.30.0.100	22	2	-	0	-	SSH-2.0-Nmap-SSH2-Hostkey	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	aes128-ctr	hmac-sha1	none	diffie-hellman-group-exchange-sha256	ssh-ed25519	-
+1772277763.963867	CZQdWo18ZhPGlnRuc8	172.30.0.1	44272	172.30.0.100	22	2	-	0	-	SSH-2.0-Nmap-SSH2-Hostkey	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	aes128-ctr	hmac-sha1	none	diffie-hellman-group-exchange-sha256	Algorithm negotiation failed	-
+1772277763.974677	CUxDB12XCOUWyMFy4j	172.30.0.1	44274	172.30.0.100	22	2	-	0	-	SSH-2.0-Nmap-SSH2-Hostkey	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	aes128-ctr	hmac-sha1	none	diffie-hellman-group-exchange-sha256	Algorithm negotiation failed	-
+1772277763.929753	CTM0v21VGVfObmWgz6	172.30.0.1	44238	172.30.0.100	22	2	-	0	-	SSH-2.0-Nmap-SSH2-Hostkey	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	aes128-ctr	hmac-sha1	none	diffie-hellman-group-exchange-sha256	Algorithm negotiation failed	-
+1772277763.940875	CpyeXCmftFXLEe182	172.30.0.1	44250	172.30.0.100	22	2	-	0	-	SSH-2.0-Nmap-SSH2-Hostkey	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	aes128-ctr	hmac-sha1	none	diffie-hellman-group-exchange-sha256	Algorithm negotiation failed	-
+1772277763.951499	CQ4pua1Bor8V5TV9F3	172.30.0.1	44260	172.30.0.100	22	2	-	0	-	SSH-2.0-Nmap-SSH2-Hostkey	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	aes128-ctr	hmac-sha1	none	diffie-hellman-group-exchange-sha256	ecdsa-sha2-nistp256	-
+1772277763.912911	CF4w2v2u0DrZuBYfle	172.30.0.1	44234	172.30.0.100	22	-	-	0	-	SSH-1.5-NmapNSE_1.0	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	-	-	-	-	-	-
+1772277763.915336	CeaEvg2kHrRf4mXGe2	172.30.0.1	44236	172.30.0.100	22	-	-	0	-	SSH-1.5-Nmap-SSH1-Hostkey	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7	-	-	-	-	-	-
+#close	2026-02-28-11-22-47

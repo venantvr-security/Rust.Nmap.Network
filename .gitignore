@@ -3,14 +3,12 @@
 **/*.rs.bk
 Cargo.lock
 
-# Logs
-*.log
-*.json
-# IDS working logs (owned by root/docker, regenerated each run)
-snort-lab/logs/
-suricata-lab/logs/
-zeek-lab/logs/
-# Sample logs are kept in sample-logs/ directory
+# Logs (temporairement désactivé pour commit initial)
+# *.log
+# *.json
+# snort-lab/logs/
+# suricata-lab/logs/
+# zeek-lab/logs/
 
 # Docker
 .docker/
