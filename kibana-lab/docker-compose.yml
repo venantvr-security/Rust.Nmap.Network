@@ -1,0 +1,195 @@
+# =============================================================================
+# KIBANA LAB - ELK Stack pour visualisation centralisée des IDS
+# =============================================================================
+#
+# ARCHITECTURE (Mermaid):
+# ```mermaid
+# graph TB
+#     subgraph HOST["🖥️ Host Network (network_mode: host)"]
+#         KB["📊 kibana<br/>localhost:5601"]
+#         FB["📨 filebeat"]
+#     end
+#
+#     subgraph kibana_net["kibana_net"]
+#         ES["🔍 elasticsearch<br/>:9200 (port mapping)"]
+#     end
+#
+#     subgraph IDS_LOGS["📁 Sources de logs IDS"]
+#         SNORT["snort-lab/logs/<br/>alert_fast.log"]
+#         SURI["suricata-lab/logs/<br/>eve.json"]
+#         ZEEK["zeek-lab/logs/<br/>conn.log, http.log..."]
+#     end
+#
+#     FB -->|lecture| SNORT
+#     FB -->|lecture| SURI
+#     FB -->|lecture| ZEEK
+#     FB -->|envoi localhost:9200| ES
+#     KB -->|requêtes localhost:9200| ES
+# ```
+#
+# NOTE: Kibana et Filebeat utilisent network_mode: host pour contourner
+# les problèmes de connectivité inter-conteneurs Docker (IPv6/IPv4).
+#
+# POURQUOI ELK STACK?
+# - Elasticsearch: Moteur de recherche et analytics distribué
+# - Kibana: Visualisation interactive des données
+# - Filebeat: Agent léger de collecte de logs
+#
+# CHOIX STRATÉGIQUES:
+# - Sécurité désactivée: Environnement lab, pas de mot de passe
+# - Indices séparés: Un index par IDS (snort-*, suricata-*, zeek-*)
+# - 3 dashboards: Visualisation dédiée pour chaque IDS
+# - Volumes montés en lecture seule: Pas de modification des logs originaux
+#
+# PORTS EXPOSÉS:
+# - 5601: Kibana dashboard (http://localhost:5601)
+# - 9200: Elasticsearch API (http://localhost:9200)
+#
+# COMMANDES UTILES:
+# - Démarrer: docker compose up -d
+# - Logs Filebeat: docker logs -f kibana_filebeat
+# - Status ES: curl http://localhost:9200/_cluster/health?pretty
+# - Indices: curl http://localhost:9200/_cat/indices?v
+# =============================================================================
+
+networks:
+  kibana_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24  # Sous-réseau dédié au lab Kibana
+
+services:
+  # ---------------------------------------------------------------------------
+  # ELASTICSEARCH - Moteur de recherche et stockage
+  # ---------------------------------------------------------------------------
+  # Elasticsearch stocke tous les logs des IDS dans des indices séparés
+  # et permet des recherches rapides et des agrégations pour les dashboards
+  #
+  # CONFIGURATION SÉCURITÉ:
+  # - xpack.security.enabled=false: Pas d'authentification (lab uniquement!)
+  # - discovery.type=single-node: Mode standalone, pas de cluster
+  #
+  # MÉMOIRE:
+  # - ES_JAVA_OPTS=-Xms512m -Xmx512m: Limite la heap JVM à 512MB
+  # - Suffisant pour un lab, augmenter en production
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.18
+    container_name: kibana_elasticsearch
+    networks:
+      - kibana_net
+    environment:
+      # Mode single-node (pas de découverte de cluster)
+      - discovery.type=single-node
+      # Désactiver la sécurité pour simplifier l'accès lab
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      # Limiter la mémoire JVM pour environnement lab
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      # Nom du cluster
+      - cluster.name=ids-lab
+      # Permettre les requêtes CORS (pour debug)
+      - http.cors.enabled=true
+      - http.cors.allow-origin="*"
+    volumes:
+      # Données persistantes (indices, shards)
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      # API REST Elasticsearch
+      - "9200:9200"
+    # Health check pour que Kibana attende qu'ES soit prêt
+    # Note: avec network.host=_site_, ES écoute sur 172.31.0.10, pas localhost
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q 'green\\|yellow'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # KIBANA - Interface de visualisation
+  # ---------------------------------------------------------------------------
+  # Kibana fournit l'interface web pour visualiser les données Elasticsearch
+  # Accessible sur http://localhost:5601
+  #
+  # DASHBOARDS À CRÉER (manuellement après démarrage):
+  # 1. Suricata Dashboard: Index pattern "suricata-*"
+  # 2. Zeek Dashboard: Index pattern "zeek-*"
+  # 3. Snort Dashboard: Index pattern "snort-*"
+  #
+  # ACCÈS SANS AUTHENTIFICATION:
+  # - XPACK_SECURITY_ENABLED=false désactive le login
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.18
+    container_name: kibana_dashboard
+    # Utiliser le réseau host pour éviter les problèmes de connectivité Docker
+    network_mode: host
+    depends_on:
+      # Attendre qu'Elasticsearch soit healthy avant de démarrer
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      # URL d'Elasticsearch (localhost car network_mode: host)
+      - ELASTICSEARCH_HOSTS=http://localhost:9200
+      # Désactiver la sécurité (pas de login)
+      - XPACK_SECURITY_ENABLED=false
+      # Écouter sur toutes les interfaces
+      - SERVER_HOST=0.0.0.0
+      # Nom du serveur
+      - SERVER_NAME=ids-lab-kibana
+      # Langue française
+      - I18N_LOCALE=fr
+    # Pas de ports: avec network_mode: host, Kibana écoute directement sur localhost:5601
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # FILEBEAT - Collecteur de logs
+  # ---------------------------------------------------------------------------
+  # Filebeat lit les logs des 3 IDS et les envoie à Elasticsearch
+  # Chaque IDS a sa propre configuration d'input avec parsing adapté
+  #
+  # FORMATS DE LOGS:
+  # - Suricata: JSON natif (eve.json) - parsing direct
+  # - Zeek: TSV avec headers - parsing par dissect
+  # - Snort: Texte alert_fast - parsing par dissect/grok
+  #
+  # VOLUMES MONTÉS EN LECTURE SEULE:
+  # - Les logs originaux ne sont jamais modifiés
+  # - Filebeat maintient un registre de position dans filebeat_data
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.17.18
+    container_name: kibana_filebeat
+    # Root nécessaire pour lire les fichiers de logs des autres containers
+    user: root
+    # Utiliser le réseau host pour éviter les problèmes de connectivité Docker
+    network_mode: host
+    depends_on:
+      # Attendre qu'Elasticsearch soit prêt
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      # Configuration Filebeat
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      # Monter les répertoires de logs des IDS (lecture seule)
+      # Note: Chemins relatifs depuis kibana-lab/
+      - ../snort-lab/logs:/var/log/snort:ro
+      - ../suricata-lab/logs:/var/log/suricata:ro
+      - ../zeek-lab/logs:/var/log/zeek:ro
+      # Registre Filebeat (position de lecture persistante)
+      - filebeat_data:/usr/share/filebeat/data
+    # Lancer Filebeat avec logs verbeux et ignorer les permissions strictes
+    command: filebeat -e -strict.perms=false
+    restart: unless-stopped
+
+# ---------------------------------------------------------------------------
+# VOLUMES PERSISTANTS
+# ---------------------------------------------------------------------------
+volumes:
+  # Données Elasticsearch (indices, shards, métadonnées)
+  es_data:
+    driver: local
+  # Registre Filebeat (positions de lecture des fichiers)
+  filebeat_data:
+    driver: local

@@ -179,6 +179,8 @@ fn get_container_details() -> Vec<HashMap<String, String>> {
                 .filter(|l| {
                     l.contains("snort") || l.contains("suricata") || l.contains("zeek")
                     || l.contains("target") || l.contains("evebox") || l.contains("editor") || l.contains("reloader")
+                    // Kibana lab containers
+                    || l.contains("kibana") || l.contains("elasticsearch") || l.contains("filebeat")
                 })
                 .map(|l| {
                     let parts: Vec<&str> = l.split('\t').collect();
@@ -296,6 +298,11 @@ async fn dashboard() -> Html<String> {
         c.get("name").map(|n| n.starts_with("zeek_") || n == "target_zeek").unwrap_or(false)
         && c.get("status").map(|s| s.contains("Up")).unwrap_or(false)
     });
+    // Kibana lab: elasticsearch, kibana, filebeat
+    let kibana_running = containers.iter().any(|c| {
+        c.get("name").map(|n| n.starts_with("kibana_")).unwrap_or(false)
+        && c.get("status").map(|s| s.contains("Up")).unwrap_or(false)
+    });
 
     for c in &containers {
         let name = c.get("name").map(|s| s.as_str()).unwrap_or("");
@@ -392,6 +399,16 @@ async fn dashboard() -> Html<String> {
                 <button class="btn stop {}" hx-post="/lab/stop/zeek" hx-target="body" hx-indicator="closest .lab-card" hx-confirm="Arrêter le lab ZEEK ?" {}>■ Stop</button>
             </div>
             <span class="loading-msg">Please wait...</span>
+        </div>
+        <div class="lab-card" data-lab="kibana" style="background: linear-gradient(135deg, #1a1a40 0%, #2d1b4e 100%);">
+            <h3 style="margin-bottom: 0.5rem;">📊 KIBANA Lab</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">ELK Stack: <code>172.31.0.0/24</code></p>
+            <p style="font-size: 0.75rem; color: var(--text-secondary);">Kibana: 5601, ES: 9200</p>
+            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+                <button class="btn start {}" hx-post="/lab/start/kibana" hx-target="body" hx-indicator="closest .lab-card" hx-confirm="Démarrer le lab KIBANA (ELK Stack) ?" {}>▶ Start</button>
+                <button class="btn stop {}" hx-post="/lab/stop/kibana" hx-target="body" hx-indicator="closest .lab-card" hx-confirm="Arrêter le lab KIBANA ?" {}>■ Stop</button>
+            </div>
+            <span class="loading-msg">Please wait...</span>
         </div>"#,
         // Snort
         if snort_running { "disabled" } else { "" }, if snort_running { "disabled" } else { "" },
@@ -402,11 +419,17 @@ async fn dashboard() -> Html<String> {
         // Zeek
         if zeek_running { "disabled" } else { "" }, if zeek_running { "disabled" } else { "" },
         if zeek_running { "" } else { "disabled" }, if zeek_running { "" } else { "disabled" },
+        // Kibana
+        if kibana_running { "disabled" } else { "" }, if kibana_running { "disabled" } else { "" },
+        if kibana_running { "" } else { "disabled" }, if kibana_running { "" } else { "disabled" },
     );
 
     // Générer les liens de visualisation dynamiques selon le lab actif
-    // Suricata: EveBox (5636), Snort: logs via editor (8081), Zeek: logs via editor (8083)
-    let visualizer_links = if suricata_running {
+    // Kibana: Dashboard centralisé (5601), Suricata: EveBox (5636), Snort: logs (8081), Zeek: logs (8083)
+    let visualizer_links = if kibana_running {
+        r#"<a href="http://localhost:5601" target="_blank" style="background: linear-gradient(135deg, #e8488a, #8a48e8);">📊 Kibana Dashboard ↗</a>
+           <a href="http://localhost:9200/_cat/indices?v" target="_blank">🔍 ES Indices ↗</a>"#.to_string()
+    } else if suricata_running {
         r#"<a href="http://localhost:5636" target="_blank" style="background: var(--accent-green);">📊 EveBox (Suricata) ↗</a>
            <a href="http://localhost:8082" target="_blank">📝 Rules Editor ↗</a>"#.to_string()
     } else if snort_running {
@@ -495,7 +518,7 @@ graph TB
                     <h2>🚀 Sélection du Lab</h2>
                 </div>
                 <div class="card-body">
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
                         {13}
                     </div>
                     <div style="margin-top: 1rem; text-align: center;">
@@ -700,11 +723,25 @@ sudo hping3 -S -a 10.0.0.1 -p 80 {7}</code><button class="copy-btn" onclick="cop
                     <h2>🔗 Accès rapides</h2>
                 </div>
                 <div class="card-body">
+                    <h4 style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Éditeurs de règles</h4>
                     <div class="quick-links">
                         <a href="http://localhost:8081" target="_blank">📝 Snort Editor</a>
                         <a href="http://localhost:8082" target="_blank">📝 Suricata Editor</a>
                         <a href="http://localhost:8083" target="_blank">📝 Zeek Editor</a>
+                    </div>
+
+                    <h4 style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.75rem 0 0.5rem;">📊 Dashboards IDS (Kibana)</h4>
+                    <div class="quick-links">
+                        <a href="http://localhost:5601/app/discover#/?_g=()&_a=(index:'snort-*')" target="_blank" style="background: linear-gradient(135deg, #ff6b6b, #ee5a24);">🐷 Snort Logs</a>
+                        <a href="http://localhost:5601/app/discover#/?_g=()&_a=(index:'suricata-*')" target="_blank" style="background: linear-gradient(135deg, #f9ca24, #f0932b);">🦊 Suricata Logs</a>
+                        <a href="http://localhost:5601/app/discover#/?_g=()&_a=(index:'zeek-*')" target="_blank" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">👁️ Zeek Logs</a>
+                    </div>
+
+                    <h4 style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.75rem 0 0.5rem;">Outils</h4>
+                    <div class="quick-links">
                         <a href="http://localhost:5636" target="_blank">📊 EveBox</a>
+                        <a href="http://localhost:5601" target="_blank" style="background: linear-gradient(135deg, #e8488a, #8a48e8);">📊 Kibana</a>
+                        <a href="http://localhost:9200" target="_blank">🔍 Elasticsearch</a>
                     </div>
                 </div>
             </div>
@@ -1338,7 +1375,7 @@ async fn start_lab(Path(lab): Path<String>) -> Html<String> {
 /// Appelé via POST /lab/stop-all
 async fn stop_all_labs() -> Html<String> {
     let root = get_project_root();
-    let labs = ["snort", "suricata", "zeek"];
+    let labs = ["snort", "suricata", "zeek", "kibana"];
 
     // Arrêter tous les labs en parallèle
     let futures: Vec<_> = labs.iter().map(|lab| {

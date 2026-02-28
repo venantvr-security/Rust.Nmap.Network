@@ -1,0 +1,274 @@
+# =============================================================================
+# FILEBEAT CONFIGURATION - Collecte des logs IDS
+# =============================================================================
+#
+# Ce fichier configure Filebeat pour collecter les logs des 3 IDS:
+# - Suricata: eve.json (format JSON natif)
+# - Zeek: conn.log, http.log, etc. (format TSV)
+# - Snort: alert_fast.log (format texte)
+#
+# Chaque IDS est envoyé vers son propre index Elasticsearch:
+# - suricata-YYYY.MM.DD
+# - zeek-YYYY.MM.DD
+# - snort-YYYY.MM.DD
+#
+# Cela permet d'avoir 3 dashboards séparés dans Kibana.
+# =============================================================================
+
+# =============================================================================
+# INPUTS - Sources de logs
+# =============================================================================
+filebeat.inputs:
+
+  # ---------------------------------------------------------------------------
+  # SURICATA - eve.json (JSON natif)
+  # ---------------------------------------------------------------------------
+  # Format: Une ligne JSON par événement
+  # Exemple: {"timestamp":"2026-02-28T11:20:29","event_type":"alert",...}
+  #
+  # Le format EVE JSON de Suricata est idéal pour Elasticsearch car:
+  # - Parsing natif sans transformation
+  # - Tous les champs sont directement indexables
+  # - Support des event_type: alert, http, dns, tls, flow, stats
+  - type: log
+    id: suricata-eve
+    enabled: true
+    paths:
+      - /var/log/suricata/eve.json
+    # Parser le JSON et mettre les champs à la racine du document
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.overwrite_keys: true
+    # Ajouter un champ pour identifier l'IDS source
+    fields:
+      ids_source: suricata
+      ids_type: network
+    fields_under_root: true
+    # Processeurs pour enrichir les données
+    processors:
+      # Ajouter le préfixe d'index
+      - add_fields:
+          target: ''
+          fields:
+            index_prefix: suricata
+
+  # ---------------------------------------------------------------------------
+  # ZEEK - Logs TSV (conn.log, http.log, dns.log, etc.)
+  # ---------------------------------------------------------------------------
+  # Format: Tab-separated values avec headers commentés (#fields, #types)
+  # Exemple: 1772277747.022603	CRSKte3OhJEYa65fBh	172.30.0.1	47750	...
+  #
+  # Les logs Zeek sont très structurés mais en TSV, pas JSON.
+  # On utilise dissect pour parser les champs principaux.
+  #
+  # NOTE: Le parsing complet nécessiterait un module Zeek dédié.
+  # Ici on parse les champs essentiels pour la visualisation.
+  - type: log
+    id: zeek-conn
+    enabled: true
+    paths:
+      - /var/log/zeek/conn.log
+    # Ignorer les lignes de header Zeek (commencent par #)
+    exclude_lines: ['^#']
+    # Identifier l'IDS source
+    fields:
+      ids_source: zeek
+      ids_type: network
+      zeek_log_type: conn
+    fields_under_root: true
+    processors:
+      - add_fields:
+          target: ''
+          fields:
+            index_prefix: zeek
+      # Parser le format TSV de conn.log
+      # Champs: ts uid id.orig_h id.orig_p id.resp_h id.resp_p proto service duration ...
+      - dissect:
+          tokenizer: "%{zeek.ts}\t%{zeek.uid}\t%{zeek.id_orig_h}\t%{zeek.id_orig_p}\t%{zeek.id_resp_h}\t%{zeek.id_resp_p}\t%{zeek.proto}\t%{zeek.service}\t%{zeek.duration}\t%{zeek.orig_bytes}\t%{zeek.resp_bytes}\t%{zeek.conn_state}"
+          field: "message"
+          target_prefix: ""
+          ignore_failure: true
+
+  # Logs HTTP Zeek
+  - type: log
+    id: zeek-http
+    enabled: true
+    paths:
+      - /var/log/zeek/http.log
+    exclude_lines: ['^#']
+    fields:
+      ids_source: zeek
+      ids_type: network
+      zeek_log_type: http
+    fields_under_root: true
+    processors:
+      - add_fields:
+          target: ''
+          fields:
+            index_prefix: zeek
+
+  # Logs DNS Zeek
+  - type: log
+    id: zeek-dns
+    enabled: true
+    paths:
+      - /var/log/zeek/dns.log
+    exclude_lines: ['^#']
+    fields:
+      ids_source: zeek
+      ids_type: network
+      zeek_log_type: dns
+    fields_under_root: true
+    processors:
+      - add_fields:
+          target: ''
+          fields:
+            index_prefix: zeek
+
+  # Logs Notice Zeek (alertes Zeek)
+  - type: log
+    id: zeek-notice
+    enabled: true
+    paths:
+      - /var/log/zeek/notice.log
+    exclude_lines: ['^#']
+    fields:
+      ids_source: zeek
+      ids_type: network
+      zeek_log_type: notice
+    fields_under_root: true
+    processors:
+      - add_fields:
+          target: ''
+          fields:
+            index_prefix: zeek
+
+  # Logs SSH Zeek
+  - type: log
+    id: zeek-ssh
+    enabled: true
+    paths:
+      - /var/log/zeek/ssh.log
+    exclude_lines: ['^#']
+    fields:
+      ids_source: zeek
+      ids_type: network
+      zeek_log_type: ssh
+    fields_under_root: true
+    processors:
+      - add_fields:
+          target: ''
+          fields:
+            index_prefix: zeek
+
+  # Logs FTP Zeek
+  - type: log
+    id: zeek-ftp
+    enabled: true
+    paths:
+      - /var/log/zeek/ftp.log
+    exclude_lines: ['^#']
+    fields:
+      ids_source: zeek
+      ids_type: network
+      zeek_log_type: ftp
+    fields_under_root: true
+    processors:
+      - add_fields:
+          target: ''
+          fields:
+            index_prefix: zeek
+
+  # ---------------------------------------------------------------------------
+  # SNORT - alert_fast.log (format texte)
+  # ---------------------------------------------------------------------------
+  # Format: MM/DD-HH:MM:SS.uuuuuu [**] [gid:sid:rev] "msg" [**] [Priority: N] {proto} src:port -> dst:port
+  # Exemple: 02/28-10:33:23.528916 [**] [1:1000001:2] "NMAP SYN Scan Detected" [**] [Priority: 0] {TCP} 172.28.0.1:39384 -> 172.28.0.100:21
+  #
+  # Ce format nécessite un parsing custom avec dissect.
+  # Les champs extraits permettent de créer des visualisations par:
+  # - Signature (msg)
+  # - Priorité
+  # - Source/Destination IP
+  # - Port
+  - type: log
+    id: snort-alerts
+    enabled: true
+    paths:
+      - /var/log/snort/alert_fast.log
+      - /var/log/snort/alert_fast.txt
+    fields:
+      ids_source: snort
+      ids_type: signature
+    fields_under_root: true
+    processors:
+      - add_fields:
+          target: ''
+          fields:
+            index_prefix: snort
+      # Parser le format alert_fast de Snort
+      # Format: timestamp [**] [sid] "msg" [**] [Priority: N] {proto} src:port -> dst:port
+      - dissect:
+          tokenizer: '%{snort.timestamp} [**] [%{snort.sid}] %{snort.msg} [**] [Priority: %{snort.priority}] {%{snort.proto}} %{snort.src_ip}:%{snort.src_port} -> %{snort.dest_ip}:%{snort.dest_port}'
+          field: "message"
+          target_prefix: ""
+          ignore_failure: true
+
+# =============================================================================
+# OUTPUT - Elasticsearch
+# =============================================================================
+output.elasticsearch:
+  # Adresse d'Elasticsearch (localhost car Filebeat utilise network_mode: host)
+  hosts: ["http://localhost:9200"]
+
+  # Index par défaut (utilisé si aucune condition ne matche)
+  index: "ids-lab-%{+yyyy.MM.dd}"
+
+  # Routing vers des indices séparés selon l'IDS source
+  indices:
+    # Index Suricata: suricata-2026.02.28
+    - index: "suricata-%{+yyyy.MM.dd}"
+      when.equals:
+        index_prefix: "suricata"
+
+    # Index Zeek: zeek-2026.02.28
+    - index: "zeek-%{+yyyy.MM.dd}"
+      when.equals:
+        index_prefix: "zeek"
+
+    # Index Snort: snort-2026.02.28
+    - index: "snort-%{+yyyy.MM.dd}"
+      when.equals:
+        index_prefix: "snort"
+
+# =============================================================================
+# SETUP - Templates et ILM
+# =============================================================================
+
+# Template d'index pour optimiser le mapping
+setup.template.enabled: true
+setup.template.name: "ids-lab"
+setup.template.pattern: "*-*"
+setup.template.settings:
+  # Un seul shard pour environnement lab
+  index.number_of_shards: 1
+  # Pas de réplication (single node)
+  index.number_of_replicas: 0
+
+# Désactiver ILM (Index Lifecycle Management) pour simplifier
+setup.ilm.enabled: false
+
+# Configuration Kibana pour import dashboards
+setup.kibana:
+  host: "http://localhost:5601"
+
+# =============================================================================
+# LOGGING
+# =============================================================================
+
+# Niveau de log (debug, info, warning, error)
+logging.level: info
+# Logs sur stdout (pas de fichier)
+logging.to_files: false
+# Format JSON pour les logs Filebeat eux-mêmes
+logging.json: true
