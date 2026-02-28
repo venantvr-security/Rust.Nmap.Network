@@ -64,21 +64,25 @@ async fn main() {
         .route("/setup", get(setup_page))                // Guide d'installation
 
         // Actions sur les containers (appelées via HTMX)
-        .route("/start/{id}", post(start_container))     // Démarrer un container
-        .route("/stop/{id}", post(stop_container))       // Arrêter un container
-        .route("/restart/{id}", post(restart_container)) // Redémarrer un container
+        .route("/start/:id", post(start_container))     // Démarrer un container
+        .route("/stop/:id", post(stop_container))       // Arrêter un container
+        .route("/restart/:id", post(restart_container)) // Redémarrer un container
 
         // Gestion des templates de règles
-        .route("/apply/{ids}/{level}", post(apply_template)) // Appliquer niveau 1-5
+        .route("/apply/:ids/:level", post(apply_template)) // Appliquer niveau 1-5
 
         // Logs et diagnostics
-        .route("/logs/{id}", get(get_logs))              // Voir les logs d'un container
-        .route("/reset-logs/{ids}", post(reset_logs))    // Réinitialiser les logs
+        .route("/logs/:id", get(get_logs))              // Voir les logs d'un container
+        .route("/reset-logs/:ids", post(reset_logs))    // Réinitialiser les logs
         .route("/system-info", get(system_info))         // Infos système
+        .route("/api/status", get(api_status))           // Status JSON pour polling
+        .route("/api/alerts/:ids", get(api_alerts))      // Alertes IDS en JSON
+        .route("/api/health", get(api_health))           // Health check pour tests
 
         // Gestion des labs complets (docker compose up/down)
-        .route("/lab/start/{lab}", post(start_lab))      // Démarrer snort/suricata/zeek
-        .route("/lab/stop/{lab}", post(stop_lab))        // Arrêter un lab
+        .route("/lab/start/:lab", post(start_lab))      // Démarrer snort/suricata/zeek
+        .route("/lab/stop/:lab", post(stop_lab))        // Arrêter un lab
+        .route("/lab/stop-all", post(stop_all_labs))    // Arrêter TOUS les labs
 
         // Fichiers statiques (CSS, JS)
         .nest_service("/static", ServeDir::new(static_dir));
@@ -278,6 +282,21 @@ async fn dashboard() -> Html<String> {
     let mut target_rows = String::new();
     let mut service_rows = String::new();
 
+    // Détecter l'état des labs (un lab est "running" si AU MOINS UN container du lab tourne)
+    // On vérifie les préfixes: snort_, suricata_, zeek_ ou target_snort, target_suricata, target_zeek
+    let snort_running = containers.iter().any(|c| {
+        c.get("name").map(|n| n.starts_with("snort_") || n == "target_snort").unwrap_or(false)
+        && c.get("status").map(|s| s.contains("Up")).unwrap_or(false)
+    });
+    let suricata_running = containers.iter().any(|c| {
+        c.get("name").map(|n| n.starts_with("suricata_") || n == "target_suricata").unwrap_or(false)
+        && c.get("status").map(|s| s.contains("Up")).unwrap_or(false)
+    });
+    let zeek_running = containers.iter().any(|c| {
+        c.get("name").map(|n| n.starts_with("zeek_") || n == "target_zeek").unwrap_or(false)
+        && c.get("status").map(|s| s.contains("Up")).unwrap_or(false)
+    });
+
     for c in &containers {
         let name = c.get("name").map(|s| s.as_str()).unwrap_or("");
         let ip = c.get("ip").map(|s| s.as_str()).unwrap_or("-");
@@ -289,19 +308,23 @@ async fn dashboard() -> Html<String> {
         let status_class = if is_running { "running" } else { "stopped" };
         let status_icon = if is_running { "●" } else { "○" };
 
+        // Boutons Start/Stop avec l'un grisé selon l'état
         let action_btns = format!(
-            r#"<button class="btn {}" hx-post="/{}/{}" hx-target="body">{}</button>
-               <button class="btn neutral" hx-post="/restart/{}" hx-target="body">↻</button>"#,
-            if is_running { "stop" } else { "start" },
-            if is_running { "stop" } else { "start" },
-            short_id,
-            if is_running { "Stop" } else { "Start" },
-            short_id
+            r#"<button class="btn start {}" hx-post="/start/{}" hx-target="body" hx-confirm="Démarrer le container {} ?" {}>Start</button>
+               <button class="btn stop {}" hx-post="/stop/{}" hx-target="body" hx-confirm="Arrêter le container {} ?" {}>Stop</button>
+               <button class="btn neutral" hx-post="/restart/{}" hx-target="body" hx-confirm="Redémarrer le container {} ?">↻</button>"#,
+            if is_running { "disabled" } else { "" },
+            short_id, name,
+            if is_running { "disabled" } else { "" },
+            if is_running { "" } else { "disabled" },
+            short_id, name,
+            if is_running { "" } else { "disabled" },
+            short_id, name
         );
 
         let row = format!(
-            r#"<tr class="{}"><td>{}</td><td><code>{}</code></td><td>{} {}</td><td>{}</td></tr>"#,
-            status_class, name, ip, status_icon,
+            r#"<tr class="{}" data-container="{}"><td>{}</td><td><code>{}</code></td><td>{} {}</td><td>{}</td></tr>"#,
+            status_class, name, name, ip, status_icon,
             if is_running { "Running" } else { "Stopped" },
             action_btns
         );
@@ -337,6 +360,65 @@ async fn dashboard() -> Html<String> {
     let suricata_level = get_current_rule_level("suricata");
     let zeek_level = get_current_rule_level("zeek");
 
+    // Générer les lab cards avec boutons grisés selon l'état
+    // hx-indicator="closest .lab-card" active le spinner sur la carte parente
+    let lab_cards = format!(r#"
+        <div class="lab-card" data-lab="snort">
+            <h3 style="margin-bottom: 0.5rem;">🐷 SNORT Lab</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">Cible: <code>172.28.0.100</code></p>
+            <p style="font-size: 0.75rem; color: var(--text-secondary);">Ports: 21, 22, 80, 8080</p>
+            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+                <button class="btn start {}" hx-post="/lab/start/snort" hx-target="body" hx-indicator="closest .lab-card" hx-confirm="Démarrer le lab SNORT ?" {}>▶ Start</button>
+                <button class="btn stop {}" hx-post="/lab/stop/snort" hx-target="body" hx-indicator="closest .lab-card" hx-confirm="Arrêter le lab SNORT ?" {}>■ Stop</button>
+            </div>
+            <span class="loading-msg">Please wait...</span>
+        </div>
+        <div class="lab-card" data-lab="suricata">
+            <h3 style="margin-bottom: 0.5rem;">🦊 SURICATA Lab</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">Cible: <code>172.29.0.100</code></p>
+            <p style="font-size: 0.75rem; color: var(--text-secondary);">Ports: 21, 22, 80, 8080</p>
+            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+                <button class="btn start {}" hx-post="/lab/start/suricata" hx-target="body" hx-indicator="closest .lab-card" hx-confirm="Démarrer le lab SURICATA ?" {}>▶ Start</button>
+                <button class="btn stop {}" hx-post="/lab/stop/suricata" hx-target="body" hx-indicator="closest .lab-card" hx-confirm="Arrêter le lab SURICATA ?" {}>■ Stop</button>
+            </div>
+            <span class="loading-msg">Please wait...</span>
+        </div>
+        <div class="lab-card" data-lab="zeek">
+            <h3 style="margin-bottom: 0.5rem;">👁️ ZEEK Lab</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">Cible: <code>172.30.0.100</code></p>
+            <p style="font-size: 0.75rem; color: var(--text-secondary);">Ports: 21, 22, 80, 8080</p>
+            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+                <button class="btn start {}" hx-post="/lab/start/zeek" hx-target="body" hx-indicator="closest .lab-card" hx-confirm="Démarrer le lab ZEEK ?" {}>▶ Start</button>
+                <button class="btn stop {}" hx-post="/lab/stop/zeek" hx-target="body" hx-indicator="closest .lab-card" hx-confirm="Arrêter le lab ZEEK ?" {}>■ Stop</button>
+            </div>
+            <span class="loading-msg">Please wait...</span>
+        </div>"#,
+        // Snort
+        if snort_running { "disabled" } else { "" }, if snort_running { "disabled" } else { "" },
+        if snort_running { "" } else { "disabled" }, if snort_running { "" } else { "disabled" },
+        // Suricata
+        if suricata_running { "disabled" } else { "" }, if suricata_running { "disabled" } else { "" },
+        if suricata_running { "" } else { "disabled" }, if suricata_running { "" } else { "disabled" },
+        // Zeek
+        if zeek_running { "disabled" } else { "" }, if zeek_running { "disabled" } else { "" },
+        if zeek_running { "" } else { "disabled" }, if zeek_running { "" } else { "disabled" },
+    );
+
+    // Générer les liens de visualisation dynamiques selon le lab actif
+    // Suricata: EveBox (5636), Snort: logs via editor (8081), Zeek: logs via editor (8083)
+    let visualizer_links = if suricata_running {
+        r#"<a href="http://localhost:5636" target="_blank" style="background: var(--accent-green);">📊 EveBox (Suricata) ↗</a>
+           <a href="http://localhost:8082" target="_blank">📝 Rules Editor ↗</a>"#.to_string()
+    } else if snort_running {
+        r#"<a href="http://localhost:8081" target="_blank">📝 Snort Editor ↗</a>
+           <span style="opacity: 0.5; padding: 0.5rem 1rem;">📊 No visualizer</span>"#.to_string()
+    } else if zeek_running {
+        r#"<a href="http://localhost:8083" target="_blank">📝 Zeek Editor ↗</a>
+           <span style="opacity: 0.5; padding: 0.5rem 1rem;">📊 No visualizer</span>"#.to_string()
+    } else {
+        r#"<span style="opacity: 0.5; padding: 0.5rem 1rem;">🚫 No lab running</span>"#.to_string()
+    };
+
     // Find target IPs for attack cookbook
     let suricata_target = containers.iter()
         .find(|c| c.get("name").map(|n| n.contains("target_suricata")).unwrap_or(false))
@@ -353,14 +435,17 @@ async fn dashboard() -> Html<String> {
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
-<body>
+<body hx-indicator="#loading">
+    <!-- Barre de chargement globale -->
+    <div id="loading" class="htmx-indicator"></div>
+
     <div class="header">
         <h1>🛡️ IDS Lab Commander</h1>
         <p class="header-subtitle">Laboratoire académique d'évasion IDS - Test Snort, Suricata, Zeek</p>
         <nav class="nav">
             <a href="/" class="active">Dashboard</a>
             <a href="/setup">Setup Guide</a>
-            <a href="http://localhost:5636" target="_blank">EveBox ↗</a>
+            {14}
         </nav>
     </div>
 
@@ -411,33 +496,14 @@ graph TB
                 </div>
                 <div class="card-body">
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                        <div class="lab-card">
-                            <h3 style="margin-bottom: 0.5rem;">🐷 SNORT Lab</h3>
-                            <p style="font-size: 0.8rem; color: var(--text-secondary);">Cible: <code>172.28.0.100</code></p>
-                            <p style="font-size: 0.75rem; color: var(--text-secondary);">Ports: 21, 22, 80, 8080</p>
-                            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
-                                <button class="btn start" hx-post="/lab/start/snort" hx-target="body">▶ Start</button>
-                                <button class="btn stop" hx-post="/lab/stop/snort" hx-target="body">■ Stop</button>
-                            </div>
-                        </div>
-                        <div class="lab-card">
-                            <h3 style="margin-bottom: 0.5rem;">🦊 SURICATA Lab</h3>
-                            <p style="font-size: 0.8rem; color: var(--text-secondary);">Cible: <code>172.29.0.100</code></p>
-                            <p style="font-size: 0.75rem; color: var(--text-secondary);">Ports: 21, 22, 80, 8080</p>
-                            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
-                                <button class="btn start" hx-post="/lab/start/suricata" hx-target="body">▶ Start</button>
-                                <button class="btn stop" hx-post="/lab/stop/suricata" hx-target="body">■ Stop</button>
-                            </div>
-                        </div>
-                        <div class="lab-card">
-                            <h3 style="margin-bottom: 0.5rem;">👁️ ZEEK Lab</h3>
-                            <p style="font-size: 0.8rem; color: var(--text-secondary);">Cible: <code>172.30.0.100</code></p>
-                            <p style="font-size: 0.75rem; color: var(--text-secondary);">Ports: 21, 22, 80, 8080</p>
-                            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
-                                <button class="btn start" hx-post="/lab/start/zeek" hx-target="body">▶ Start</button>
-                                <button class="btn stop" hx-post="/lab/stop/zeek" hx-target="body">■ Stop</button>
-                            </div>
-                        </div>
+                        {13}
+                    </div>
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <button class="btn stop" style="padding: 10px 24px; font-size: 0.9rem;"
+                                hx-post="/lab/stop-all" hx-target="body" hx-indicator="this"
+                                hx-confirm="Arrêter TOUS les labs (Snort, Suricata, Zeek) ?">
+                            🛑 Stop All Labs
+                        </button>
                     </div>
                     <div class="info-callout" style="margin-top: 1rem;">
                         <strong>Services sur chaque cible:</strong> HTTP (80), SSH (22), FTP (21), API (8080)<br>
@@ -643,6 +709,30 @@ sudo hping3 -S -a 10.0.0.1 -p 80 {7}</code><button class="copy-btn" onclick="cop
                 </div>
             </div>
 
+            <!-- Alerts Viewer -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>🚨 Alertes IDS</h2>
+                    <button class="btn neutral" onclick="refreshAlerts()" style="font-size: 0.75rem;">↻ Refresh</button>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <button class="tab active" onclick="showAlertTab('snort')">🐷 Snort</button>
+                        <button class="tab" onclick="showAlertTab('suricata')">🦊 Suricata</button>
+                        <button class="tab" onclick="showAlertTab('zeek')">👁️ Zeek</button>
+                    </div>
+                    <div id="alerts-snort" class="alerts-panel active">
+                        <pre class="alerts-content" id="alerts-content-snort">Cliquez sur Refresh pour charger les alertes...</pre>
+                    </div>
+                    <div id="alerts-suricata" class="alerts-panel">
+                        <pre class="alerts-content" id="alerts-content-suricata">Cliquez sur Refresh pour charger les alertes...</pre>
+                    </div>
+                    <div id="alerts-zeek" class="alerts-panel">
+                        <pre class="alerts-content" id="alerts-content-zeek">Cliquez sur Refresh pour charger les alertes...</pre>
+                    </div>
+                </div>
+            </div>
+
             <!-- Services -->
             <div class="card">
                 <div class="card-header">
@@ -691,7 +781,9 @@ sudo hping3 -S -a 10.0.0.1 -p 80 {7}</code><button class="copy-btn" onclick="cop
         if docker_ok { "OK" } else { "Erreur" },
         network_html,
         interfaces_html,
-        service_rows
+        service_rows,
+        lab_cards,  // {13} - Lab cards avec boutons grisés
+        visualizer_links  // {14} - Liens visualiseur dynamiques
     );
 
     Html(html)
@@ -915,6 +1007,48 @@ ping -c 1 $(docker inspect target_suricata --format '{{{{range .NetworkSettings.
         </div>
     </div>
 
+    <div class="card">
+        <div class="card-body">
+            <h3>⚠️ AppArmor bloque Docker (permission denied)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                Si vous obtenez "permission denied" même avec sudo lors du stop/rm de containers, AppArmor bloque Docker.
+            </p>
+            <pre><code># Solution 1: Redémarrer la machine (le plus simple)
+sudo reboot
+
+# Solution 2: Redémarrer Docker
+sudo systemctl restart docker
+
+# Solution 3: Désactiver le profil AppArmor Docker
+sudo apt install apparmor-utils
+sudo aa-complain /etc/apparmor.d/docker
+sudo systemctl restart docker
+
+# Vérifier l'état d'AppArmor
+sudo aa-status | grep docker
+
+# Si problème persiste, désactiver complètement pour Docker
+sudo ln -s /etc/apparmor.d/docker /etc/apparmor.d/disable/
+sudo apparmor_parser -R /etc/apparmor.d/docker
+sudo systemctl restart docker</code></pre>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h3>Containers zombie (ne s'arrêtent pas)</h3>
+            <pre><code># Forcer la suppression d'un container
+docker rm -f &lt;container_name&gt;
+
+# Si ça ne fonctionne pas, redémarrer Docker
+sudo systemctl restart docker
+
+# Puis nettoyer
+docker container prune -f
+docker network prune -f</code></pre>
+        </div>
+    </div>
+
     <script src="/static/js/dashboard.js"></script>
 </body>
 </html>"##,
@@ -939,7 +1073,8 @@ ping -c 1 $(docker inspect target_suricata --format '{{{{range .NetworkSettings.
 async fn start_container(Path(id): Path<String>) -> Html<String> {
     let docker = Docker::connect_with_local_defaults().unwrap();
     let _ = docker.start_container(&id, None::<StartContainerOptions<String>>).await;
-    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+    // Attendre que Docker mette à jour l'état
+    tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
     dashboard().await
 }
 
@@ -947,8 +1082,11 @@ async fn start_container(Path(id): Path<String>) -> Html<String> {
 /// Appelé via POST /stop/{id}
 async fn stop_container(Path(id): Path<String>) -> Html<String> {
     let docker = Docker::connect_with_local_defaults().unwrap();
-    let _ = docker.stop_container(&id, None::<StopContainerOptions>).await;
-    tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+    // Attendre jusqu'à 10 secondes pour l'arrêt
+    let options = StopContainerOptions { t: 10 };
+    let _ = docker.stop_container(&id, Some(options)).await;
+    // Attendre que Docker mette à jour l'état
+    tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
     dashboard().await
 }
 
@@ -1055,6 +1193,106 @@ async fn system_info() -> Html<String> {
     Html(html)
 }
 
+/// Retourne le status des containers en JSON pour le polling JS.
+/// Appelé via GET /api/status
+async fn api_status() -> axum::Json<Vec<HashMap<String, String>>> {
+    let containers = get_container_details();
+    axum::Json(containers)
+}
+
+/// Health check endpoint pour les tests automatisés.
+/// Retourne l'état du système: Docker, labs actifs, etc.
+async fn api_health() -> axum::Json<serde_json::Value> {
+    // Vérifier Docker
+    let docker_ok = tokio::process::Command::new("docker")
+        .args(["version"])
+        .output()
+        .await
+        .map(|o| o.status.success())
+        .unwrap_or(false);
+
+    // Récupérer les containers actifs
+    let containers = get_container_details();
+
+    // Détecter les labs actifs
+    let snort_running = containers.iter().any(|c| {
+        c.get("name").map(|n| n.starts_with("snort_")).unwrap_or(false)
+        && c.get("status").map(|s| s.contains("Up")).unwrap_or(false)
+    });
+    let suricata_running = containers.iter().any(|c| {
+        c.get("name").map(|n| n.starts_with("suricata_")).unwrap_or(false)
+        && c.get("status").map(|s| s.contains("Up")).unwrap_or(false)
+    });
+    let zeek_running = containers.iter().any(|c| {
+        c.get("name").map(|n| n.starts_with("zeek_")).unwrap_or(false)
+        && c.get("status").map(|s| s.contains("Up")).unwrap_or(false)
+    });
+
+    axum::Json(serde_json::json!({
+        "status": if docker_ok { "healthy" } else { "degraded" },
+        "docker": docker_ok,
+        "labs": {
+            "snort": snort_running,
+            "suricata": suricata_running,
+            "zeek": zeek_running
+        },
+        "containers_count": containers.len(),
+        "timestamp": chrono::Utc::now().to_rfc3339()
+    }))
+}
+
+/// Retourne les dernières alertes d'un IDS en JSON.
+/// Appelé via GET /api/alerts/:ids (snort, suricata, zeek)
+async fn api_alerts(Path(ids): Path<String>) -> axum::Json<serde_json::Value> {
+    let container_name = format!("{}_ids", ids);
+
+    // Récupérer les logs via docker logs
+    let output = tokio::process::Command::new("docker")
+        .args(["logs", "--tail", "50", &container_name])
+        .output()
+        .await;
+
+    match output {
+        Ok(o) => {
+            let stdout = String::from_utf8_lossy(&o.stdout);
+            let stderr = String::from_utf8_lossy(&o.stderr);
+
+            // Combiner stdout et stderr (certains IDS écrivent sur stderr)
+            let combined = format!("{}{}", stdout, stderr);
+
+            // Filtrer les lignes qui ressemblent à des alertes
+            let alerts: Vec<&str> = combined
+                .lines()
+                .filter(|line| {
+                    // Filtrer les lignes intéressantes selon l'IDS
+                    match ids.as_str() {
+                        "snort" => line.contains("alert") || line.contains("ALERT") || line.contains("[**]"),
+                        "suricata" => line.contains("alert") || line.contains("Alert") || line.contains("event_type"),
+                        "zeek" => !line.starts_with('#') && line.len() > 10,
+                        _ => true,
+                    }
+                })
+                .take(30)
+                .collect();
+
+            axum::Json(serde_json::json!({
+                "ids": ids,
+                "container": container_name,
+                "alerts": alerts,
+                "count": alerts.len()
+            }))
+        }
+        Err(e) => {
+            axum::Json(serde_json::json!({
+                "ids": ids,
+                "error": format!("Failed to get logs: {}", e),
+                "alerts": [],
+                "count": 0
+            }))
+        }
+    }
+}
+
 // ============================================================================
 // GESTION DES LABS
 // ============================================================================
@@ -1072,10 +1310,14 @@ async fn start_lab(Path(lab): Path<String>) -> Html<String> {
     let root = get_project_root();
     let lab_dir = root.join(format!("{}-lab", lab));
 
-    let output = Command::new("docker")
-        .args(["compose", "up", "-d"])
+    // Utiliser tokio::process::Command pour l'exécution async
+    // --build: reconstruit les images si nécessaire (target-server, etc.)
+    // --remove-orphans: nettoie les containers orphelins d'une exécution précédente
+    let output = tokio::process::Command::new("docker")
+        .args(["compose", "up", "-d", "--build", "--remove-orphans"])
         .current_dir(&lab_dir)
-        .output();
+        .output()
+        .await;
 
     match output {
         Ok(o) => {
@@ -1092,16 +1334,55 @@ async fn start_lab(Path(lab): Path<String>) -> Html<String> {
     dashboard().await
 }
 
+/// Arrête TOUS les labs via `docker compose down` sur chaque répertoire.
+/// Appelé via POST /lab/stop-all
+async fn stop_all_labs() -> Html<String> {
+    let root = get_project_root();
+    let labs = ["snort", "suricata", "zeek"];
+
+    // Arrêter tous les labs en parallèle
+    let futures: Vec<_> = labs.iter().map(|lab| {
+        let lab_dir = root.join(format!("{}-lab", lab));
+        let lab_name = lab.to_string();
+        async move {
+            let output = tokio::process::Command::new("docker")
+                .args(["compose", "down", "--remove-orphans"])
+                .current_dir(&lab_dir)
+                .output()
+                .await;
+
+            match output {
+                Ok(o) => {
+                    if o.status.success() {
+                        println!("✓ Stopped lab: {}", lab_name);
+                    } else {
+                        eprintln!("Failed to stop {}: {}", lab_name, String::from_utf8_lossy(&o.stderr));
+                    }
+                }
+                Err(e) => eprintln!("Error stopping {}: {}", lab_name, e),
+            }
+        }
+    }).collect();
+
+    futures_util::future::join_all(futures).await;
+
+    println!("✓ All labs stopped");
+    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+    dashboard().await
+}
+
 /// Arrête un lab complet via `docker compose down`.
 /// Appelé via POST /lab/stop/{lab}
 async fn stop_lab(Path(lab): Path<String>) -> Html<String> {
     let root = get_project_root();
     let lab_dir = root.join(format!("{}-lab", lab));
 
-    let output = Command::new("docker")
+    // Utiliser tokio::process::Command pour l'exécution async
+    let output = tokio::process::Command::new("docker")
         .args(["compose", "down"])
         .current_dir(&lab_dir)
-        .output();
+        .output()
+        .await;
 
     match output {
         Ok(o) => {

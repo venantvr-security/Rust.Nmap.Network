@@ -85,3 +85,6 @@ tower-http = { version = "0.6", features = ["cors", "fs"] }
 
 # Utilitaires pour les streams async (logs Docker)
 futures-util = "0.3"
+
+# Date/time pour les timestamps
+chrono = { version = "0.4", features = ["serde"] }

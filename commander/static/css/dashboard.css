@@ -12,12 +12,14 @@
     --text-primary: #f0f0f0;
     --text-secondary: #888;
     --border-color: rgba(255,255,255,0.1);
+    --font-sans: system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', monospace;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-sans);
     background: var(--bg-dark);
     color: var(--text-primary);
     min-height: 100vh;
@@ -73,15 +75,53 @@ table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
 th { font-weight: 600; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; }
 tr:last-child td { border-bottom: none; }
-tr.running td:nth-child(3) { color: var(--accent-green); }
-tr.stopped td:nth-child(3) { color: var(--accent-red); }
+
+/* === ÉTATS DES CONTAINERS === */
+
+/* Container en cours d'exécution */
+tr.running td:nth-child(3) {
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+/* Container arrêté - ligne grisée */
+tr.stopped {
+    opacity: 0.5;
+    background: rgba(0,0,0,0.2);
+}
+tr.stopped:hover {
+    opacity: 0.75;
+}
+tr.stopped td:nth-child(3) {
+    color: var(--accent-red);
+}
+
+/* Bouton Start - vert */
+.btn.start {
+    background: var(--accent-green);
+    color: white;
+}
+
+/* Bouton Stop - rouge */
+.btn.stop {
+    background: var(--accent-red);
+    color: white;
+}
+
+/* Bouton désactivé (grisé) */
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
 
 /* Code */
 code {
     background: rgba(0,0,0,0.4);
     padding: 2px 6px;
     border-radius: 4px;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: var(--font-mono);
     font-size: 0.8rem;
 }
 
@@ -91,6 +131,7 @@ code {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-family: inherit;
     font-weight: 500;
     font-size: 0.8rem;
     margin-right: 4px;
@@ -110,6 +151,7 @@ code {
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    font-family: inherit;
     font-weight: 500;
     text-align: left;
     font-size: 0.85rem;
@@ -223,6 +265,7 @@ code {
     border: none;
     background: none;
     color: var(--text-secondary);
+    font-family: inherit;
     font-size: 0.85rem;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
@@ -245,4 +288,222 @@ code {
     padding: 1rem;
     border-radius: 8px;
     margin: 1rem 0;
+}
+
+/* ==========================================================================
+   HTMX LOADING FEEDBACK
+   ========================================================================== */
+
+/* Spinner animation */
+@keyframes htmx-spinner {
+    to { transform: rotate(360deg); }
+}
+
+/* Loading indicator en haut de page */
+.htmx-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green), var(--accent-blue));
+    background-size: 200% 100%;
+    animation: loading-bar 1s ease-in-out infinite;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+@keyframes loading-bar {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Affiche l'indicateur pendant une requête HTMX */
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+    opacity: 1;
+}
+
+/* Boutons pendant une requête - état de chargement */
+.btn.htmx-request,
+button.htmx-request,
+.level-btn.htmx-request {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Spinner sur les boutons */
+.btn.htmx-request::after,
+button.htmx-request::after,
+.level-btn.htmx-request::after {
+    content: "";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    margin-top: -7px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: htmx-spinner 0.6s linear infinite;
+}
+
+/* Curseur de chargement sur body pendant une requête */
+body.htmx-request {
+    cursor: wait;
+}
+
+/* Feedback visuel au clic - ripple effect */
+.btn:active,
+button:active,
+.level-btn:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+}
+
+/* ==========================================================================
+   LAB CARDS - Loading state pour build d'images
+   ========================================================================== */
+
+/* Lab card en état de chargement */
+.lab-card.htmx-request {
+    position: relative;
+    pointer-events: none;
+}
+
+/* Overlay semi-transparent pendant le build */
+.lab-card.htmx-request::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    z-index: 1;
+}
+
+/* Spinner central sur la lab card */
+.lab-card.htmx-request::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 3px solid rgba(255,255,255,0.2);
+    border-top-color: var(--accent-blue);
+    border-radius: 50%;
+    animation: htmx-spinner 0.8s linear infinite;
+    z-index: 2;
+}
+
+/* Message de chargement sous le spinner */
+.lab-card .loading-msg {
+    display: none;
+}
+
+.lab-card.htmx-request .loading-msg {
+    display: block;
+    position: absolute;
+    top: calc(50% + 28px);
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: var(--accent-blue);
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 2;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* Toast de notification */
+.htmx-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--accent-green);
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 9999;
+    animation: toast-in 0.3s ease-out;
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================================
+   ALERTS VIEWER
+   ========================================================================== */
+
+.alerts-panel {
+    display: none;
+    margin-top: 1rem;
+}
+
+.alerts-panel.active {
+    display: block;
+}
+
+.alerts-content {
+    background: #000;
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    max-height: 300px;
+    overflow-y: auto;
+    color: var(--accent-green);
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.alerts-content.loading {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.alerts-content.error {
+    color: var(--accent-red);
+}
+
+/* Highlight alert keywords */
+.alert-line {
+    display: block;
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.alert-line:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.alert-priority-high {
+    color: var(--accent-red);
+}
+
+.alert-priority-medium {
+    color: var(--accent-orange);
+}
+
+.alert-priority-low {
+    color: var(--accent-yellow);
 }
