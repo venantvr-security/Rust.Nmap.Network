@@ -1,20 +1,20 @@
-# Snort Local Rules - IDS Lab
+# Snort 3 Local Rules - IDS Lab
 # Test rules for nmap detection
 
-# Detect NMAP SYN scan
-alert tcp any any -> any any (msg:"NMAP SYN Scan Detected"; flags:S; threshold:type threshold, track by_src, count 5, seconds 60; sid:1000001; rev:1;)
+# Detect NMAP SYN scan (multiple SYN packets)
+alert tcp any any -> any any (msg:"NMAP SYN Scan Detected"; flags:S,12; sid:1000001; rev:2;)
 
 # Detect NMAP NULL scan
 alert tcp any any -> any any (msg:"NMAP NULL Scan Detected"; flags:0; sid:1000002; rev:1;)
 
 # Detect NMAP FIN scan
-alert tcp any any -> any any (msg:"NMAP FIN Scan Detected"; flags:F; sid:1000003; rev:1;)
+alert tcp any any -> any any (msg:"NMAP FIN Scan Detected"; flags:F,12; sid:1000003; rev:1;)
 
-# Detect NMAP XMAS scan
-alert tcp any any -> any any (msg:"NMAP XMAS Scan Detected"; flags:FPU; sid:1000004; rev:1;)
+# Detect NMAP XMAS scan (FIN+PSH+URG)
+alert tcp any any -> any any (msg:"NMAP XMAS Scan Detected"; flags:FPU,12; sid:1000004; rev:1;)
 
-# Detect HTTP request with suspicious user-agent
-alert tcp any any -> any 80 (msg:"Suspicious HTTP Request"; content:"GET"; http_method; sid:1000005; rev:1;)
+# Detect HTTP request
+alert tcp any any -> any 80 (msg:"HTTP Request Detected"; flow:to_server,established; content:"GET"; http_method; sid:1000005; rev:2;)
 
 # Detect fragmented packets (possible evasion)
 alert ip any any -> any any (msg:"IP Fragmentation Detected"; fragbits:M; sid:1000006; rev:1;)

@@ -29,11 +29,19 @@ stream_udp = { }
 -- HTTP inspection
 http_inspect = { }
 
--- Port scan detection
+-- Binder for service detection and wizard
+binder = {
+    { when = { proto = 'tcp' }, use = { type = 'wizard' } },
+    { when = { proto = 'udp' }, use = { type = 'wizard' } }
+}
+
+wizard = { }
+
+-- Port scan detection (Snort 3.x syntax)
 port_scan = {
     protos = 'all',
     scan_types = 'all',
-    sense_level = 'low',
+    memcap = 10000000,
 }
 
 -- Normalizers
