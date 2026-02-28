@@ -1,0 +1,71 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	notice
+#open	2026-02-28-11-22-35
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	fuid	file_mime_type	file_desc	proto	note	msg	sub	src	dst	p	n	peer_descr	actions	email_dest	suppress_for	remote_location.country_code	remote_location.region	remote_location.city	remote_location.latitude	remote_location.longitude
+#types	time	string	addr	port	addr	port	string	string	string	enum	enum	string	string	addr	addr	port	count	string	set[enum]	set[string]	interval	string	string	string	double	double
+1772277755.362478	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277755.377066	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET /nmaplowercheck1772277755 from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277755.377147	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP POST /sdk from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277755.377219	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277755.379892	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET /HNAP1 from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277755.380245	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET /evox/about from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277755.382556	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277755.383731	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.863896	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904513	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP POST / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904551	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904573	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP PROPFIND / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904608	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904630	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904650	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904682	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET /nmaplowercheck1772277763 from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904703	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET /.git/HEAD from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904722	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904761	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP POST /sdk from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904795	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET /robots.txt from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.904827	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP PROPFIND / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.918993	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.919598	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP PROPFIND / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.919642	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP CYJT / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.919690	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET /HNAP1 from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.919716	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.920085	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.920201	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET /favicon.ico from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.920352	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET /evox/about from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.920602	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.920747	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.921019	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.930272	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.930305	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.930990	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.931160	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.931911	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.931970	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP HEAD / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.932039	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.941283	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.941436	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.941547	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.941607	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP POST / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.942812	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.942894	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.943192	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.943310	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.951654	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.952005	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.952334	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.954980	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.955141	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.955192	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.964161	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.964323	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP OPTIONS / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.965571	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.976257	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.989174	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.989406	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.989581	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.990452	-	-	-	-	-	-	-	-	-	IDS_Lab::SYN_Flood_Detected	Possible SYN flood from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+1772277763.990533	-	-	-	-	-	-	-	-	-	IDS_Lab::HTTP_Request_Detected	HTTP GET / from 172.30.0.1	-	172.30.0.1	-	-	-	-	Notice::ACTION_LOG	(empty)	3600.000000	-	-	-	-	-
+#close	2026-02-28-11-22-47

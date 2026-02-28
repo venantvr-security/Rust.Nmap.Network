@@ -1,0 +1,50 @@
+02/28/2026-10:18:49.680961  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:48
+02/28/2026-10:18:49.682163  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:49
+02/28/2026-10:18:49.681174  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:6
+02/28/2026-10:18:49.681606  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:8
+02/28/2026-10:18:49.682717  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:62
+02/28/2026-10:18:49.681915  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:54
+02/28/2026-10:18:49.682055  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:63
+02/28/2026-10:18:49.682883  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:30
+02/28/2026-10:18:49.683402  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:27
+02/28/2026-10:18:49.680559  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:25
+02/28/2026-10:18:49.682219  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:95
+02/28/2026-10:18:49.681713  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:97
+02/28/2026-10:18:49.683253  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:47
+02/28/2026-10:18:49.682082  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:1
+02/28/2026-10:18:49.683442  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:64
+02/28/2026-10:18:49.684344  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:11
+02/28/2026-10:18:49.682686  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:85
+02/28/2026-10:18:49.684304  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:35
+02/28/2026-10:18:49.683812  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:24
+02/28/2026-10:18:49.684117  [**] [1:2000005:1] ET SCAN Potential Port Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:98
+02/28/2026-10:18:49.684231  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:51442 -> 172.29.0.100:50
+02/28/2026-10:21:08.140247  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:49958 -> 172.29.0.100:22
+02/28/2026-10:21:10.384610  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:49970 -> 172.29.0.100:22
+02/28/2026-10:21:16.472009  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:60078 -> 172.29.0.100:80
+02/28/2026-10:21:16.460508  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:45416 -> 172.29.0.100:80
+02/28/2026-10:21:16.474354  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60078 -> 172.29.0.100:80
+02/28/2026-10:21:16.460513  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:45416 -> 172.29.0.100:80
+02/28/2026-10:21:16.462995  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:45416 -> 172.29.0.100:80
+02/28/2026-10:21:16.474333  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60066 -> 172.29.0.100:80
+02/28/2026-10:21:16.474346  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60062 -> 172.29.0.100:80
+02/28/2026-10:21:16.474351  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60062 -> 172.29.0.100:80
+02/28/2026-10:21:16.474935  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60062 -> 172.29.0.100:80
+02/28/2026-10:21:16.475255  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60066 -> 172.29.0.100:80
+02/28/2026-10:21:16.479297  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60096 -> 172.29.0.100:80
+02/28/2026-10:21:16.479302  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60096 -> 172.29.0.100:80
+02/28/2026-10:21:16.479661  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60096 -> 172.29.0.100:80
+02/28/2026-10:21:16.480344  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60102 -> 172.29.0.100:80
+02/28/2026-10:21:16.480349  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60102 -> 172.29.0.100:80
+02/28/2026-10:21:16.480446  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60102 -> 172.29.0.100:80
+02/28/2026-10:21:16.480753  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60102 -> 172.29.0.100:80
+02/28/2026-10:21:16.476015  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60078 -> 172.29.0.100:80
+02/28/2026-10:21:16.476937  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60090 -> 172.29.0.100:80
+02/28/2026-10:21:16.477143  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60092 -> 172.29.0.100:80
+02/28/2026-10:21:16.477448  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60090 -> 172.29.0.100:80
+02/28/2026-10:21:16.477990  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60092 -> 172.29.0.100:80
+02/28/2026-10:21:18.863724  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:46158 -> 172.29.0.100:443
+02/28/2026-10:21:18.940142  [**] [1:2000001:1] ET SCAN NMAP SYN Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.29.0.1:56226 -> 172.29.0.100:21
+02/28/2026-10:21:24.947121  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60138 -> 172.29.0.100:80
+02/28/2026-10:21:24.947125  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60138 -> 172.29.0.100:80
+02/28/2026-10:21:24.948673  [**] [1:2000007:1] HTTP Request Detected [**] [Classification: (null)] [Priority: 3] {TCP} 172.29.0.1:60138 -> 172.29.0.100:80

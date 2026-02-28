@@ -5,10 +5,12 @@ Cargo.lock
 
 # Logs
 *.log
-suricata-lab/logs/
-snort-lab/logs/
-zeek-lab/logs/
 *.json
+# IDS working logs (owned by root/docker, regenerated each run)
+snort-lab/logs/
+suricata-lab/logs/
+zeek-lab/logs/
+# Sample logs are kept in sample-logs/ directory
 
 # Docker
 .docker/
