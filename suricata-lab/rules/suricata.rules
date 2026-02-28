@@ -1,0 +1,26 @@
+# Suricata Local Rules - IDS Lab
+# Test rules for nmap detection
+
+# Detect NMAP SYN scan
+alert tcp any any -> any any (msg:"ET SCAN NMAP SYN Scan"; flags:S; threshold: type threshold, track by_src, count 5, seconds 60; classtype:attempted-recon; sid:2000001; rev:1;)
+
+# Detect NMAP NULL scan
+alert tcp any any -> any any (msg:"ET SCAN NMAP NULL Scan"; flags:0; classtype:attempted-recon; sid:2000002; rev:1;)
+
+# Detect NMAP FIN scan
+alert tcp any any -> any any (msg:"ET SCAN NMAP FIN Scan"; flags:F; classtype:attempted-recon; sid:2000003; rev:1;)
+
+# Detect NMAP XMAS scan
+alert tcp any any -> any any (msg:"ET SCAN NMAP XMAS Scan"; flags:FPU; classtype:attempted-recon; sid:2000004; rev:1;)
+
+# Detect potential port scan
+alert tcp any any -> any any (msg:"ET SCAN Potential Port Scan"; flow:stateless; flags:S; threshold: type both, track by_src, count 100, seconds 10; classtype:attempted-recon; sid:2000005; rev:1;)
+
+# Detect ICMP ping
+alert icmp any any -> any any (msg:"ICMP Ping Detected"; itype:8; sid:2000006; rev:1;)
+
+# Detect HTTP request
+alert http any any -> any any (msg:"HTTP Request Detected"; flow:to_server,established; sid:2000007; rev:1;)
+
+# Detect IP fragmentation (evasion attempt)
+alert ip any any -> any any (msg:"IP Fragmentation Detected - Possible Evasion"; fragbits:M; classtype:attempted-recon; sid:2000008; rev:1;)
