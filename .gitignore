@@ -3,12 +3,12 @@
 **/*.rs.bk
 Cargo.lock
 
-# Logs (temporairement désactivé pour commit initial)
-# *.log
-# *.json
-# snort-lab/logs/
-# suricata-lab/logs/
-# zeek-lab/logs/
+# Logs (initial state committed, future changes ignored)
+*.log
+*.json
+snort-lab/logs/
+suricata-lab/logs/
+zeek-lab/logs/
 
 # Docker
 .docker/
