@@ -1,3 +1,27 @@
+> **⚠️ DISCLAIMER - ETHICAL HACKING / HACKING ÉTHIQUE**
+>
+> This repository is intended **solely for educational purposes, authorized security testing, and defensive research**.
+> All tools and techniques documented here must only be used on systems you own or have explicit written permission to test.
+>
+> **Unauthorized access to computer systems is illegal** under laws including but not limited to:
+> - 🇫🇷 Article 323-1 du Code Pénal (France)
+> - 🇺🇸 Computer Fraud and Abuse Act (USA)
+> - 🇪🇺 EU Directive 2013/40/EU (Europe)
+>
+> The authors assume **no liability** for misuse of these materials.
+> By using this repository, you agree to use it responsibly and legally.
+>
+> ---
+>
+> Ce dépôt est destiné **uniquement à des fins éducatives, de tests de sécurité autorisés et de recherche défensive**.
+> Tous les outils et techniques documentés ici ne doivent être utilisés que sur des systèmes vous appartenant
+> ou pour lesquels vous disposez d'une autorisation écrite explicite.
+>
+> **L'accès non autorisé à des systèmes informatiques est illégal.**
+> Les auteurs déclinent **toute responsabilité** en cas de mauvaise utilisation.
+
+---
+
 # Rust.Nmap.Network - IDS Lab Commander
 
 [![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
