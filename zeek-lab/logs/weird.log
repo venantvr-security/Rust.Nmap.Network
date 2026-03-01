@@ -3,10 +3,10 @@
 #empty_field	(empty)
 #unset_field	-
 #path	weird
-#open	2026-02-28-11-22-43
+#open	2026-02-28-18-55-56
 #fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	name	addl	notice	peer	source
 #types	time	string	addr	port	addr	port	string	string	bool	string	string
-1772277763.916327	CF4w2v2u0DrZuBYfle	172.30.0.1	44234	172.30.0.100	22	SSH_version_mismatch	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7 vs SSH-1.5-NmapNSE_1.0	F	zeek	-
-1772277763.916341	CeaEvg2kHrRf4mXGe2	172.30.0.1	44236	172.30.0.100	22	SSH_version_mismatch	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7 vs SSH-1.5-Nmap-SSH1-Hostkey	F	zeek	-
-1772277763.919642	CWeVlh2tYkmBHGaCC	172.30.0.1	47574	172.30.0.100	80	unknown_HTTP_method	CYJT	F	zeek	-
-#close	2026-02-28-11-22-47
+1772304956.161411	CCi8MI3RGCpQJcI1Xe	172.30.0.1	58114	172.30.0.100	22	SSH_version_mismatch	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7 vs SSH-1.5-NmapNSE_1.0	F	zeek	-
+1772304956.161427	C9WZu11FMlMv2BQJ9f	172.30.0.1	58128	172.30.0.100	22	SSH_version_mismatch	SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u7 vs SSH-1.5-Nmap-SSH1-Hostkey	F	zeek	-
+1772304956.165547	CUz48z3RB0eNUEjANk	172.30.0.1	55372	172.30.0.100	80	unknown_HTTP_method	IBDT	F	zeek	-
+#close	2026-02-28-18-55-59
